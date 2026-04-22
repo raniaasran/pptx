@@ -1,0 +1,205 @@
+[
+  {
+    "request_id": "infographic_v1_demo_10_slides",
+    "design_family_id": "infographic_v1",
+    "slides": [
+      {
+        "layout_id": "title_points",
+        "content": {
+          "title": "AI in Education",
+          "intro_paragraphs": [
+            "AI can improve student support and teacher workflow."
+          ],
+          "point_titles": [
+            "Faster Help",
+            "Smarter Practice",
+            "Teacher Time",
+            "Clearer Tracking"
+          ],
+          "point_descriptions": [
+            "Students get quick hints.",
+            "Practice targets weak topics.",
+            "Routine prep takes less time.",
+            "Schools monitor progress trends."
+          ]
+        }
+      },
+      {
+        "layout_id": "numbered_cards",
+        "content": {
+          "title": "Where AI Helps Most",
+          "card_titles": [
+            "Homework",
+            "Revision",
+            "Writing",
+            "Planning"
+          ],
+          "card_descriptions": [
+            "Hints during independent work.",
+            "Quick recap before tests.",
+            "Cleaner drafts and grammar.",
+            "Faster lesson starters."
+          ]
+        }
+      },
+      {
+        "layout_id": "numbered_steps",
+        "content": {
+          "title": "Pilot Launch Steps",
+          "step_titles": [
+            "Set Goals",
+            "Choose Classes",
+            "Prepare Materials",
+            "Train Staff",
+            "Review Results"
+          ],
+          "step_descriptions": [
+            "Define clear success metrics.",
+            "Start with a small group.",
+            "Use lesson-aligned resources.",
+            "Train teams on safe use.",
+            "Compare results to baseline."
+          ]
+        }
+      },
+      {
+        "layout_id": "vertical_numbered_steps",
+        "content": {
+          "title": "Teacher Readiness Checklist",
+          "step_titles": [
+            "Define Use",
+            "Set Rules",
+            "Check Content",
+            "Monitor Use",
+            "Collect Feedback"
+          ],
+          "step_descriptions": [
+            "Agree on core classroom goals.",
+            "Define allowed and blocked usage.",
+            "Confirm curriculum alignment.",
+            "Track usage and quality weekly.",
+            "Collect teacher and student input."
+          ]
+        }
+      },
+      {
+        "layout_id": "title_points",
+        "content": {
+          "title": "Student Benefits",
+          "intro_paragraphs": [
+            "Best results come from guided support."
+          ],
+          "point_titles": [
+            "Quick Help",
+            "More Confidence",
+            "Targeted Practice",
+            "Flexible Pace"
+          ],
+          "point_descriptions": [
+            "Support arrives when needed.",
+            "Small wins reduce frustration.",
+            "Practice focuses on weak areas.",
+            "Students learn at their pace."
+          ]
+        }
+      },
+      {
+        "layout_id": "numbered_cards",
+        "content": {
+          "title": "Teacher Benefits",
+          "card_titles": [
+            "Lesson Prep",
+            "Feedback",
+            "Differentiation",
+            "Monitoring"
+          ],
+          "card_descriptions": [
+            "Build materials faster.",
+            "Draft comments quickly.",
+            "Adjust tasks by level.",
+            "Spot learning gaps sooner."
+          ]
+        }
+      },
+      {
+        "layout_id": "numbered_steps",
+        "content": {
+          "title": "Key Risks to Manage",
+          "step_titles": [
+            "Wrong Answers",
+            "Over-Reliance",
+            "Privacy Risk",
+            "Bias Risk",
+            "Weak Monitoring"
+          ],
+          "step_descriptions": [
+            "Check critical outputs for accuracy.",
+            "Keep independent practice required.",
+            "Protect student data at all times.",
+            "Review outputs for fairness.",
+            "Track quality every week."
+          ]
+        }
+      },
+      {
+        "layout_id": "vertical_numbered_steps",
+        "content": {
+          "title": "Core Guardrails",
+          "step_titles": [
+            "Protect Data",
+            "Require Review",
+            "Limit Scope",
+            "Track Quality",
+            "Escalate Issues"
+          ],
+          "step_descriptions": [
+            "Use only approved tools and data.",
+            "Review key outputs before use.",
+            "Start with low-risk tasks.",
+            "Measure value and accuracy.",
+            "Report weak outputs quickly."
+          ]
+        }
+      },
+      {
+        "layout_id": "title_points",
+        "content": {
+          "title": "Success Metrics",
+          "intro_paragraphs": [
+            "Track a small set of clear indicators."
+          ],
+          "point_titles": [
+            "Completion Rate",
+            "Response Speed",
+            "Engagement",
+            "Teacher Time"
+          ],
+          "point_descriptions": [
+            "More tasks finished on time.",
+            "Faster support for students.",
+            "Higher participation in practice.",
+            "Less repetitive prep work."
+          ]
+        }
+      },
+      {
+        "layout_id": "numbered_cards",
+        "content": {
+          "title": "Next Actions",
+          "card_titles": [
+            "Expand Gradually",
+            "Improve Training",
+            "Standardize Workflow",
+            "Review Each Term"
+          ],
+          "card_descriptions": [
+            "Add classes in small waves.",
+            "Use pilot examples in training.",
+            "Document prompts and rules.",
+            "Refine scope after each term."
+          ]
+        }
+      }
+    ]
+  }
+]

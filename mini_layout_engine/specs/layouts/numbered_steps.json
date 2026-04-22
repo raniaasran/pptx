@@ -1,0 +1,35 @@
+{
+  "layout_id": "numbered_steps",
+  "description": "Use for ordered sequences of multiple steps or items, where each step is represented by a number, a short title, and a supporting description. Suitable for processes, timelines, or structured lists.",
+  "required_fields": [
+    "title",
+    "step_titles",
+    "step_descriptions"
+  ],
+  "optional_fields": [
+    "intro_paragraphs",
+    "closing_paragraph",
+    "image"
+  ],
+  "field_types": {
+    "title": "string",
+    "step_titles": "bullet_list",
+    "step_descriptions": "paragraph_list",
+    "intro_paragraphs": "paragraph_list",
+    "closing_paragraph": "string",
+    "image": "image_ref"
+  },
+  "constraints": {
+    "min_steps": 2,
+    "max_steps": 12,
+    "ordered": true,
+    "require_parallel_lists": true
+  },
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "numbered_steps.base"
+}

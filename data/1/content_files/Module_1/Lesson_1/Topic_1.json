@@ -1,0 +1,3 @@
+{
+  "content": "Slide 1:\nTopic Pipeline Demo\nJSON and topic content paths are supported.\n\nSlide 2:\nHow it runs\nSlidesService loads content, reconstructs JSON, and renders PPTX.\n\nSlide 3:\nResult\nA real presentation file is written to pptx_files."
+}

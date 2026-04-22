@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "AI in Retail",
+    "first_textbox": "Retail teams use AI to improve assortment planning and store operations.",
+    "second_textbox": "Customer behavior patterns can be segmented quickly.",
+    "third_textbox": "Faster replenishment",
+    "fourth_textbox": "Lower stockouts",
+    "fifth_textbox": "Higher conversion",
+    "picture_placeholder": "ai_image"
+  }
+}

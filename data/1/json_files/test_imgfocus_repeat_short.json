@@ -1,0 +1,9 @@
+{
+  "slide_1": {
+    "template_key": "text_with_image_focus_repeat",
+    "title_shape": "AI Triage Snapshot",
+    "first_textbox": "Teams tracked impact weekly and adjusted routing rules quickly.",
+    "second_textbox": "A support desk adopted AI triage to classify incoming requests and prioritize urgent issues before queue growth impacted response commitments.",
+    "picture_placeholder": "ai_image"
+  }
+}

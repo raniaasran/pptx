@@ -1,0 +1,11 @@
+{
+  "slide_1": {
+    "template_key": "text_with_bullets_explanation",
+    "title_shape": "AI Rollout Checklist",
+    "first_textbox": "Teams need a concise checklist before each production update.",
+    "first_bullet": "Confirm owner and rollback contact",
+    "second_bullet": "Validate dashboard health",
+    "third_bullet": "Review release communication",
+    "second_textbox": "Short checklists reduce preventable incidents."
+  }
+}

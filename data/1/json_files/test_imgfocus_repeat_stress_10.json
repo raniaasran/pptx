@@ -1,0 +1,9 @@
+{
+  "slide_1": {
+    "template_key": "text_with_image_focus_repeat",
+    "title_shape": "AI Operations Stress Case 10 Bullets",
+    "first_textbox": "? Define operational ownership for every alert pathway so incident escalation does not stall during peak workload windows.\n? Validate threshold tuning with recent production traffic rather than relying on pilot assumptions that no longer match live behavior.\n? Document fallback procedures for routing failures so supervisors can recover quickly when automation confidence drops.\n? Align shift handoff templates across regions to prevent information loss when unresolved queues move between teams.\n? Rehearse communication plans for customer-facing incidents and confirm escalation contacts for weekends and holidays.\n? Track backlog burn-down against clear service-level targets and publish unresolved blockers with owners and dates.\n? Audit model drift alerts weekly and confirm remediation actions are tied to measurable quality outcomes.\n? Review post-incident learnings with engineering and support leadership to close repeat failure patterns.\n? Confirm observability coverage for every critical dependency so hidden failures are detected before support volume spikes.\n? Enforce change-window discipline with explicit rollback checkpoints to reduce compounding risk during coordinated releases.",
+    "second_textbox": "A multi-region service organization introduced AI-assisted routing and risk scoring to stabilize escalating ticket volume. Program managers combined model confidence trends, unresolved dependency tracking, staffing variability, and root-cause recurrence signals to improve intervention timing. Weekly executive reviews required evidence that queue volatility, response latency, and repeat incidents were all trending in the right direction before additional rollout phases were approved.",
+    "picture_placeholder": "ml_image"
+  }
+}

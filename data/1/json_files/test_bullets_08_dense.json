@@ -1,0 +1,11 @@
+{
+  "slide_1": {
+    "template_key": "text_with_bullets_explanation",
+    "title_shape": "Operational Readiness",
+    "first_textbox": "Readiness spans people, process, platform, and governance controls.",
+    "first_bullet": "Finalize runbooks; Verify incident routing; Confirm dashboard ownership",
+    "second_bullet": "Rehearse failover; Validate fallback logic; Test degraded-mode behavior",
+    "third_bullet": "Review access controls; Audit logging; Sign off compliance evidence",
+    "second_textbox": "Dense coverage is useful here because teams execute this list weekly."
+  }
+}

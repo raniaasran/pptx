@@ -1,0 +1,19 @@
+{
+    "slide_1": {
+        "template_key": "cover_title_slide",
+        "title_shape": "Topic Pipeline Demo",
+        "subtitle_shape": "JSON and topic content paths are supported."
+    },
+    "slide_2": {
+        "template_key": "dual_text_comparison",
+        "title_shape": "How it runs",
+        "first_textbox": "SlidesService loads content, reconstructs JSON, and renders PPTX.",
+        "second_textbox": "Slide 2"
+    },
+    "slide_3": {
+        "template_key": "dual_text_comparison_alt",
+        "title_shape": "Result",
+        "first_textbox": "A real presentation file is written to pptx_files.",
+        "second_textbox": "Slide 3"
+    }
+}

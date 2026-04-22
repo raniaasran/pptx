@@ -1,0 +1,34 @@
+{
+  "layout_id": "numbered_cards",
+  "description": "Use for slides with multiple numbered cards arranged horizontally, where each card contains a short title and a supporting description. Suitable for presenting examples, key points, or categorized items. A supporting illustration may appear alongside the cards.",
+  "required_fields": [
+    "title",
+    "card_titles",
+    "card_descriptions"
+  ],
+  "optional_fields": [
+    "intro_paragraphs",
+    "image",
+    "footer_note"
+  ],
+  "field_types": {
+    "title": "string",
+    "card_titles": "bullet_list",
+    "card_descriptions": "paragraph_list",
+    "intro_paragraphs": "paragraph_list",
+    "image": "image_ref",
+    "footer_note": "string"
+  },
+  "constraints": {
+    "min_cards": 2,
+    "max_cards": 8,
+    "require_parallel_lists": true
+  },
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "numbered_cards.base"
+}

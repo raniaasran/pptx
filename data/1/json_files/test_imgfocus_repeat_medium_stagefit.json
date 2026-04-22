@@ -1,0 +1,9 @@
+{
+  "slide_1": {
+    "template_key": "text_with_image_focus_repeat",
+    "title_shape": "AI-Guided Support Operations",
+    "first_textbox": "Leads used weekly reviews to tune thresholds, close routing gaps, and keep escalation handoffs consistent across shifts.",
+    "second_textbox": "A distributed support organization introduced an AI workflow to group duplicate incidents, score urgency signals, and direct complex cases to specialists earlier in the lifecycle. Managers combined queue metrics with staffing context to reduce reactive firefighting and improve day-to-day predictability.",
+    "picture_placeholder": "ml_image"
+  }
+}

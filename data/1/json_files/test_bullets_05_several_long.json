@@ -1,0 +1,11 @@
+{
+  "slide_1": {
+    "template_key": "text_with_bullets_explanation",
+    "title_shape": "Risks in Real-World AI Systems",
+    "first_textbox": "Operational risks increase when systems scale across teams and regions.",
+    "first_bullet": "Data drift can quietly reduce model quality over time if retraining triggers are not clearly defined and continuously monitored.",
+    "second_bullet": "Ambiguous ownership between product, platform, and operations teams can delay incident response when failures happen under peak traffic.",
+    "third_bullet": "Unclear model documentation makes it hard for reviewers to understand assumptions, limitations, and expected behavior in edge cases.",
+    "second_textbox": "Documented safeguards make governance practical rather than symbolic."
+  }
+}

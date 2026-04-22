@@ -1,0 +1,11 @@
+{
+  "slide_1": {
+    "template_key": "text_with_bullets_explanation",
+    "title_shape": "Program Risks and Mitigations",
+    "first_textbox": "This case intentionally pushes content limits to validate overflow handling.",
+    "first_bullet": "When data dependencies are spread across external vendors, delayed contract updates can break ingestion pipelines and silently invalidate historical comparisons; teams must validate every interface revision.",
+    "second_bullet": "If model monitoring thresholds are copied from pilot environments without recalibration, false positives or missed incidents can increase sharply, forcing operations teams into reactive workflows that hide root causes.",
+    "third_bullet": "Large multi-country launches require local policy checks, language QA, and support playbooks; skipping any of these steps can produce inconsistent user outcomes and prolonged remediation timelines.",
+    "second_textbox": "Overflow behavior should stay readable even when ideal aesthetics are not possible."
+  }
+}

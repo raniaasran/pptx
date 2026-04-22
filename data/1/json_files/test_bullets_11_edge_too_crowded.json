@@ -1,0 +1,11 @@
+{
+  "slide_1": {
+    "template_key": "text_with_bullets_explanation",
+    "title_shape": "High-Density Knowledge Transfer",
+    "first_textbox": "This intentionally compresses many action points into one slide.",
+    "first_bullet": "Define owners for every dependency; Track SLA breaches weekly; Publish risk snapshots for leadership; Include unresolved blockers with due dates",
+    "second_bullet": "Document rollback paths for every release train; Verify observability coverage across core services; Add escalation contacts for weekends and holidays",
+    "third_bullet": "Capture postmortem learnings with corrective actions; Review change windows before peak events; Align communication templates across support channels",
+    "second_textbox": "The layout should degrade gracefully rather than collide or overlap."
+  }
+}

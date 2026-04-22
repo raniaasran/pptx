@@ -1,0 +1,11 @@
+{
+  "slide_1": {
+    "template_key": "text_with_bullets_explanation",
+    "title_shape": "Feature Engineering Mix",
+    "first_textbox": "Some features are simple while others need heavy transformation logic.",
+    "first_bullet": "Normalize numeric ranges",
+    "second_bullet": "Create time-window aggregates that summarize trends across multiple business cycles and capture seasonal behavior.",
+    "third_bullet": "One-hot encode categories; Add fallback bucket for unknown values in live traffic.",
+    "second_textbox": "A mixed strategy often works better than forcing one technique everywhere."
+  }
+}

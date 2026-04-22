@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "AI Pilot Snapshot",
+    "first_textbox": "A small retail pilot used AI-assisted demand planning for weekend inventory decisions.",
+    "second_textbox": "Store teams received daily forecasts and simple exception alerts.",
+    "third_textbox": "Fewer urgent reorders",
+    "fourth_textbox": "Faster shelf refill",
+    "fifth_textbox": "Higher in-stock rate",
+    "picture_placeholder": "ai_image"
+  }
+}

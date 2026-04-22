@@ -1,0 +1,246 @@
+[
+  {
+    "request_id": "infographic_v1_demo_10_slides",
+    "design_family_id": "infographic_v1",
+    "slides": [
+      {
+        "layout_id": "title_points",
+        "content": {
+          "title": "AI in Education",
+          "intro_paragraphs": [
+            "This deck summarizes how AI can improve classroom support, teacher efficiency, and student learning outcomes."
+          ],
+          "point_titles": [
+            "Student Support",
+            "Teacher Productivity",
+            "Personalized Learning",
+            "Data-Driven Decisions"
+          ],
+          "point_descriptions": [
+            "AI tools can guide students through practice, revision, and feedback loops.",
+            "Teachers can automate repetitive tasks and focus more on coaching.",
+            "Learning paths can adapt to student pace, strengths, and weak areas.",
+            "Schools can monitor engagement, completion, and intervention needs more effectively."
+          ],
+          "closing_paragraph": "The goal is not replacing teachers, but improving how learning support is delivered.",
+          "image": "ai_education_cover"
+        }
+      },
+      {
+        "layout_id": "numbered_cards",
+        "content": {
+          "title": "Where AI Adds the Most Value",
+          "intro_paragraphs": [
+            "The most visible gains usually appear in a few high-impact classroom use cases."
+          ],
+          "card_titles": [
+            "Homework Support",
+            "Revision Sessions",
+            "Writing Feedback",
+            "Teacher Preparation"
+          ],
+          "card_descriptions": [
+            "Students receive guided hints and explanations while working independently.",
+            "AI-generated recap activities help reinforce key concepts before tests.",
+            "Draft reviews improve clarity, grammar, and structure faster than manual-only workflows.",
+            "Teachers can generate starter materials, quizzes, and differentiated practice more quickly."
+          ],
+          "image": "ai_classroom_value",
+          "footer_note": "These examples are common starting points for pilot programs."
+        }
+      },
+      {
+        "layout_id": "numbered_steps",
+        "content": {
+          "title": "How to Launch a School AI Pilot",
+          "intro_paragraphs": [
+            "A controlled rollout reduces risk and makes evaluation easier."
+          ],
+          "step_titles": [
+            "Define Goals",
+            "Select Pilot Classes",
+            "Prepare Content",
+            "Train Staff",
+            "Run the Pilot",
+            "Measure Results"
+          ],
+          "step_descriptions": [
+            "Set clear success criteria such as completion rates, response time, or teacher time saved.",
+            "Start with a small number of classes that have clear baseline data.",
+            "Gather lesson-aligned prompts, question banks, and revision materials.",
+            "Train teachers on workflows, guardrails, and classroom usage expectations.",
+            "Launch the pilot with weekly monitoring and feedback collection.",
+            "Compare pilot outcomes against baseline and decide whether to expand."
+          ],
+          "closing_paragraph": "A simple pilot structure makes it easier to identify what worked and why."
+        }
+      },
+      {
+        "layout_id": "vertical_numbered_steps",
+        "content": {
+          "title": "Teacher Readiness Checklist",
+          "intro_paragraphs": [
+            "Before classroom use begins, teachers should align on the following basics."
+          ],
+          "step_titles": [
+            "Clarify Purpose",
+            "Set Rules",
+            "Review Materials",
+            "Monitor Usage",
+            "Collect Feedback"
+          ],
+          "step_descriptions": [
+            "Decide whether the tool will support practice, revision, feedback, or planning.",
+            "Define what students can and cannot do with AI during class and homework.",
+            "Check prompts, examples, and outputs for curriculum alignment.",
+            "Track usage patterns, confusion points, and quality of generated support.",
+            "Ask both students and teachers what improved and what still needs adjustment."
+          ],
+          "closing_paragraph": "A consistent checklist improves rollout quality across departments."
+        }
+      },
+      {
+        "layout_id": "title_points",
+        "content": {
+          "title": "Benefits for Students",
+          "intro_paragraphs": [
+            "Students benefit most when AI is used as a support layer rather than an answer machine."
+          ],
+          "point_titles": [
+            "Immediate Help",
+            "Confidence Building",
+            "Targeted Practice",
+            "Flexible Pace"
+          ],
+          "point_descriptions": [
+            "Students can get support without waiting for the next class or office hour.",
+            "Small guided wins reduce frustration and encourage persistence.",
+            "Practice can focus on individual weak points instead of repeating everything equally.",
+            "Students can revisit explanations and examples as many times as needed."
+          ],
+          "closing_paragraph": "The strongest impact usually comes when guidance is timely, clear, and curriculum-aligned.",
+          "image": "student_benefits"
+        }
+      },
+      {
+        "layout_id": "numbered_cards",
+        "content": {
+          "title": "Benefits for Teachers",
+          "intro_paragraphs": [
+            "AI can reduce repetitive workload while preserving teacher control."
+          ],
+          "card_titles": [
+            "Lesson Prep",
+            "Feedback Drafting",
+            "Differentiation",
+            "Progress Monitoring"
+          ],
+          "card_descriptions": [
+            "Teachers can generate first-draft examples, prompts, and worksheets faster.",
+            "Initial feedback suggestions save time before teacher review and refinement.",
+            "Assignments can be adapted more easily for different student levels.",
+            "Patterns in student errors and participation become easier to identify."
+          ],
+          "image": "teacher_benefits",
+          "footer_note": "Teacher review remains essential for quality and context."
+        }
+      },
+      {
+        "layout_id": "numbered_steps",
+        "content": {
+          "title": "Risks to Manage",
+          "intro_paragraphs": [
+            "Successful adoption depends on identifying risks early and setting clear safeguards."
+          ],
+          "step_titles": [
+            "Inaccurate Answers",
+            "Over-Reliance",
+            "Privacy Concerns",
+            "Bias in Outputs",
+            "Weak Prompting",
+            "Poor Monitoring"
+          ],
+          "step_descriptions": [
+            "Students may receive plausible but incorrect explanations or examples.",
+            "Some learners may depend on the tool instead of practicing independently.",
+            "Sensitive student information must be handled according to policy.",
+            "Generated outputs may reflect incomplete or skewed assumptions.",
+            "Low-quality prompts often lead to vague or unhelpful results.",
+            "Without monitoring, it becomes hard to detect misuse or low-value usage."
+          ],
+          "closing_paragraph": "Guardrails are not optional; they are part of the implementation design."
+        }
+      },
+      {
+        "layout_id": "vertical_numbered_steps",
+        "content": {
+          "title": "Guardrails for Safe Use",
+          "intro_paragraphs": [
+            "A few consistent operating rules can prevent most early adoption issues."
+          ],
+          "step_titles": [
+            "Protect Data",
+            "Require Review",
+            "Limit Scope",
+            "Track Quality",
+            "Escalate Issues"
+          ],
+          "step_descriptions": [
+            "Never expose student data beyond approved usage policies and tools.",
+            "Teachers should review important outputs before they are used in assessment contexts.",
+            "Start with low-risk use cases such as revision, brainstorming, and first drafts.",
+            "Measure usefulness, accuracy, and engagement regularly.",
+            "Create a simple path for reporting harmful, weak, or misleading outputs."
+          ],
+          "closing_paragraph": "Simple guardrails keep pilots useful without slowing them down too much."
+        }
+      },
+      {
+        "layout_id": "title_points",
+        "content": {
+          "title": "How Success Should Be Measured",
+          "intro_paragraphs": [
+            "A pilot should be evaluated with a small set of meaningful indicators."
+          ],
+          "point_titles": [
+            "Completion Rate",
+            "Response Speed",
+            "Engagement Level",
+            "Teacher Time Saved"
+          ],
+          "point_descriptions": [
+            "Track whether more students finish assignments and revision tasks on time.",
+            "Measure how quickly students receive useful feedback or support.",
+            "Watch participation in practice sessions, revision tasks, and follow-up questions.",
+            "Estimate how much repetitive preparation and correction time is reduced."
+          ],
+          "closing_paragraph": "Metrics should connect directly to the goals defined at the start of the pilot.",
+          "image": "success_metrics"
+        }
+      },
+      {
+        "layout_id": "numbered_cards",
+        "content": {
+          "title": "Recommended Next Actions",
+          "intro_paragraphs": [
+            "After reviewing pilot outcomes, the school can move into a controlled expansion phase."
+          ],
+          "card_titles": [
+            "Expand Carefully",
+            "Improve Training",
+            "Standardize Workflows",
+            "Review Every Term"
+          ],
+          "card_descriptions": [
+            "Add new classes gradually instead of scaling across the whole school at once.",
+            "Train new teachers with examples from the pilot rather than generic instructions.",
+            "Document approved prompts, review practices, and usage rules.",
+            "Reassess outcomes each term to refine scope, safeguards, and support materials."
+          ],
+          "image": "next_actions",
+          "footer_note": "Expansion works best when evidence, training, and governance grow together."
+        }
+      }
+    ]
+  }
+]

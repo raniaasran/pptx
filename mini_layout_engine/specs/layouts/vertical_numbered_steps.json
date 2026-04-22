@@ -1,0 +1,34 @@
+{
+  "layout_id": "vertical_numbered_steps",
+  "description": "Use for vertically arranged numbered steps, where each step includes a number, a short title, and a supporting description. Suitable for step-by-step explanations or sequential highlights in a compact vertical layout.",
+  "required_fields": [
+    "title",
+    "step_titles",
+    "step_descriptions"
+  ],
+  "optional_fields": [
+    "intro_paragraphs",
+    "closing_paragraph"
+  ],
+  "field_types": {
+    "title": "string",
+    "step_titles": "bullet_list",
+    "step_descriptions": "paragraph_list",
+    "intro_paragraphs": "paragraph_list",
+    "closing_paragraph": "string"
+  },
+  "constraints": {
+    "min_steps": 2,
+    "max_steps": 10,
+    "ordered": true,
+    "orientation": "vertical",
+    "require_parallel_lists": true
+  },
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "vertical_numbered_steps.base"
+}

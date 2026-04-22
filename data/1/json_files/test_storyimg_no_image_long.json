@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "Enterprise AI Program Coordination Under Operational Constraints",
+    "first_textbox": "Several business units launched AI-enabled forecasting, support automation, and quality detection in parallel. The delivery sequence required formal dependency tracking, jurisdiction-specific compliance checks, and cross-team release governance before production rollout.",
+    "second_textbox": "Leadership merged performance and risk indicators into one operating rhythm, including queue pressure, model drift, incident recovery duration, staffing utilization, and remediation backlog burn-down across departments.",
+    "third_textbox": "Inconsistent escalation standards delayed incident resolution on peak days",
+    "fourth_textbox": "Cross-team handoff quality dropped when ownership models diverged",
+    "fifth_textbox": "Executive reviews demanded weekly measurable remediation progress",
+    "picture_placeholder": ""
+  }
+}

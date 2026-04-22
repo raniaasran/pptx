@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "AI Operations Story",
+    "first_textbox": "A regional operations team introduced an AI assistant to prioritize service tickets, predict queue spikes, and route complex requests to specialists before SLA breaches occurred.",
+    "second_textbox": "After rollout, managers reported better shift planning, faster issue triage, and clearer daily workload visibility across support channels.",
+    "third_textbox": "Ticket triage improved by 28% across weekday peaks",
+    "fourth_textbox": "Average response time dropped while preserving quality checks",
+    "fifth_textbox": "Teams focused on escalations instead of manual sorting",
+    "picture_placeholder": "ml_image"
+  }
+}

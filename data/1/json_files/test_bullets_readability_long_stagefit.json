@@ -1,0 +1,11 @@
+{
+  "slide_1": {
+    "template_key": "text_with_bullets_explanation",
+    "title_shape": "Program Risk Controls and Execution Discipline",
+    "first_textbox": "This long case validates that dense bullet content stays readable and never overlaps.",
+    "first_bullet": "When data pipelines depend on external vendors, interface changes must be validated immediately, because silent schema drift can invalidate monitoring trends and delay incident detection.",
+    "second_bullet": "If threshold tuning is copied from pilot environments without recalibration, teams can face noisy alerts or missed failures, increasing manual triage load and slowing root-cause isolation.",
+    "third_bullet": "Large multi-region releases require synchronized legal checks, localization QA, and support playbooks; weak coordination in any one area can create inconsistent user outcomes and prolonged remediation windows.",
+    "second_textbox": "If the slide cannot remain readable at the configured floor, it should reject as non-fit."
+  }
+}

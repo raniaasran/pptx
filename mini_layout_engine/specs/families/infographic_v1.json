@@ -1,0 +1,25 @@
+{
+  "family_id": "infographic_v1",
+  "template_file": "infographic_v1.pptx",
+  "default_theme_color_variant": "default",
+  "default_font_variant": "default",
+  "theme_tokens": {
+    "primary_color": "#1F3A5F",
+    "font_heading": "Calibri",
+    "font_body": "Calibri"
+  },
+  "layout_mapping": {
+    "numbered_cards": {
+      "pptx_layout_name": "numbered_cards"
+    },
+    "title_points": {
+      "pptx_layout_name": "title_points"
+    },
+    "numbered_steps": {
+      "pptx_layout_name": "numbered_steps"
+    },
+    "vertical_numbered_steps": {
+      "pptx_layout_name": "vertical_numbered_steps"
+    }
+  }
+}

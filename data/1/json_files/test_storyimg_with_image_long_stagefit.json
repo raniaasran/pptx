@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "Cross-Department AI Transformation Execution Narrative",
+    "first_textbox": "Over twelve months, multiple departments launched AI workflows for forecasting, quality monitoring, and support automation. Each release required governance checkpoints, regional policy reviews, and rollback criteria before production activation.",
+    "second_textbox": "Program leaders then unified operations metrics into one cadence, including incident trends, drift signals, false-positive investigations, staffing impacts, and cost-baseline tracking across business units.",
+    "third_textbox": "Approval gates across legal, platform, and operations were hard to synchronize",
+    "fourth_textbox": "Handoff quality varied when incident ownership boundaries were unclear",
+    "fifth_textbox": "Weekly remediation updates were required for executive oversight",
+    "picture_placeholder": "ai_image"
+  }
+}

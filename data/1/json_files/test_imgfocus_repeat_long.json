@@ -1,0 +1,9 @@
+{
+  "slide_1": {
+    "template_key": "text_with_image_focus_repeat",
+    "title_shape": "Enterprise Incident Management Modernization",
+    "first_textbox": "Program governance required weekly operational checkpoints, measurable remediation targets, and explicit ownership for unresolved handoff failures.",
+    "second_textbox": "Multiple regional support teams rolled out an AI-assisted incident workflow to classify inbound issues, identify repeated failure patterns, and prioritize interventions before service-level breaches occurred. Leaders then consolidated response-time trends, escalation quality indicators, and workload forecasts into one operating cadence so supervisors could rebalance staffing, tighten routing policy, and reduce backlog volatility under sustained demand.",
+    "picture_placeholder": "ai_image"
+  }
+}

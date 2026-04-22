@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "Large-Scale AI Transformation Narrative Across Multiple Business Units",
+    "first_textbox": "During a twelve-month transformation program, five departments introduced separate AI workflows for forecasting, quality monitoring, customer support, and logistics optimization. Each rollout required cross-functional governance meetings, regional compliance checks, model validation signoffs, and detailed rollback planning before production release.",
+    "second_textbox": "Program leadership then consolidated metrics from all workstreams into one operating cadence, including incident rates, drift alerts, false positive investigations, staffing impacts, and finance-controlled cost baselines. This exposed misaligned ownership boundaries and forced teams to redesign escalation protocols and reporting responsibilities.",
+    "third_textbox": "Multi-region rollout dependencies created repeated schedule slippage when approval gates were not synchronized across legal, platform, and operations stakeholders.",
+    "fourth_textbox": "Incident response handoffs became inconsistent because communication templates differed by department and on-call coverage did not include shared fallback ownership.",
+    "fifth_textbox": "Executive review required weekly remediation snapshots",
+    "picture_placeholder": "ai_image"
+  }
+}

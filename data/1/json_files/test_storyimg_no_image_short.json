@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "AI Operations Snapshot",
+    "first_textbox": "A service team used AI recommendations to improve prioritization for daily operations.",
+    "second_textbox": "Managers tracked impact with concise weekly reviews.",
+    "third_textbox": "Faster triage",
+    "fourth_textbox": "Lower rework",
+    "fifth_textbox": "Clearer ownership",
+    "picture_placeholder": ""
+  }
+}

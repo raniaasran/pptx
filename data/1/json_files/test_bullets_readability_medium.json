@@ -1,0 +1,11 @@
+{
+  "slide_1": {
+    "template_key": "text_with_bullets_explanation",
+    "title_shape": "Operational Readiness Review",
+    "first_textbox": "Readiness reviews align platform, support, and product teams before high-impact releases.",
+    "first_bullet": "Verify monitoring thresholds and alert ownership for each critical service.",
+    "second_bullet": "Confirm escalation routes, backup responders, and weekend support coverage.",
+    "third_bullet": "Check rollback rehearsals and communications for customer-facing incidents.",
+    "second_textbox": "A structured review keeps launch risk manageable under time pressure."
+  }
+}

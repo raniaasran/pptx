@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "Service Team AI Modernization",
+    "first_textbox": "A distributed service team adopted AI-assisted workflows to classify incidents, identify recurring failure patterns, and route urgent tickets to the correct response owners before service levels degraded.",
+    "second_textbox": "Managers combined queue metrics, staffing signals, and incident categories to coordinate daily decisions and reduce reactive escalations.",
+    "third_textbox": "Routing quality improved across regional queues",
+    "fourth_textbox": "Response workflows became more consistent",
+    "fifth_textbox": "On-call effort shifted to complex cases",
+    "picture_placeholder": ""
+  }
+}

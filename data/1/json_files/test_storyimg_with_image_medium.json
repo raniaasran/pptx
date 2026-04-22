@@ -1,0 +1,12 @@
+{
+  "slide_1": {
+    "template_key": "story_with_image_and_points",
+    "title_shape": "AI Support Workflow Rollout",
+    "first_textbox": "A regional support organization introduced an AI triage assistant to classify incoming issues, group duplicate incidents, and escalate urgent cases before queue backlogs spread across teams.",
+    "second_textbox": "Leads reported clearer shift planning, faster handoffs, and better consistency in escalation decisions during peak traffic windows.",
+    "third_textbox": "Queue triage stabilized across weekday spikes",
+    "fourth_textbox": "Response times improved without reducing review quality",
+    "fifth_textbox": "Specialists focused on high-impact escalations",
+    "picture_placeholder": "ml_image"
+  }
+}
