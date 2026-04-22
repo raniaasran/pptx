@@ -1,0 +1,28 @@
+{
+  "layout_id": "section_grid",
+  "description": "Use for displaying multiple content blocks arranged in a grid layout. Each block contains a title and supporting description, with an optional label such as a number or short identifier.",
+  "continuation": true,
+  "required_fields": [
+    "title",
+    "sections"
+  ],
+  "optional_fields": [],
+  "field_types": {
+    "title": "string",
+    "sections": "object_list"
+  },
+  "constraints": {
+    "sections_item_schema": {
+      "label": "string_optional",
+      "title": "string",
+      "description": "string"
+    }
+  },
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "section_grid.base"
+}

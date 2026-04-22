@@ -1,0 +1,26 @@
+[
+  {
+    "request_id": "multipurpose_v1_section_grid_min",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Core Areas",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Plan",
+              "description": "Set goals"
+            },
+            {
+              "label": "02",
+              "title": "Build",
+              "description": "Create assets"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

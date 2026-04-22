@@ -1,0 +1,29 @@
+[
+  {
+    "request_id": "multipurpose_v1_info_table_visual",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Pilot Metrics Table",
+          "subtitle": "Current rollout checkpoints",
+          "rows": [
+            {
+              "label": "Reach",
+              "description": "12 teams onboarded"
+            },
+            {
+              "label": "Quality",
+              "description": "Weekly review complete"
+            }
+          ],
+          "footer_notes": [
+            "Prepared for review",
+            "Updated this week"
+          ]
+        }
+      }
+    ]
+  }
+]

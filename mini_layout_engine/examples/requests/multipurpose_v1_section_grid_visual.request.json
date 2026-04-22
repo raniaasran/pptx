@@ -1,0 +1,36 @@
+[
+  {
+    "request_id": "multipurpose_v1_section_grid_visual",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Launch Workstreams",
+          "sections": [
+            {
+              "label": "A1",
+              "title": "Research",
+              "description": "Gather inputs"
+            },
+            {
+              "label": "B2",
+              "title": "Design",
+              "description": "Shape slides"
+            },
+            {
+              "label": "C3",
+              "title": "Review",
+              "description": "Check quality"
+            },
+            {
+              "label": "D4",
+              "title": "Deliver",
+              "description": "Publish deck"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

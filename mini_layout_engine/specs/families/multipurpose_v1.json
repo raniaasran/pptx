@@ -4,5 +4,86 @@
   "default_theme_color_variant": "default",
   "default_font_variant": "default",
   "theme_tokens": {},
-  "layout_mapping": {}
+  "layout_mapping": {
+    "cover_title": {
+      "pptx_layout_name": "cover_title",
+      "template_slide_index": 1,
+      "placeholders": {
+        "title": {
+          "name": "Google Shape;1191;p45"
+        },
+        "subtitle": {
+          "name": "Google Shape;1193;p45"
+        }
+      }
+    },
+    "info_table": {
+      "pptx_layout_name": "info_table",
+      "template_slide_index": 2,
+      "placeholders": {
+        "title": {
+          "name": "Google Shape;1217;p46"
+        },
+        "subtitle": {
+          "name": "Google Shape;1218;p46"
+        },
+        "rows": {
+          "type": "table",
+          "name": "Google Shape;1241;p46",
+          "start_row": 0,
+          "columns": {
+            "label": 0,
+            "description": 1
+          },
+          "pagination": {
+            "enabled": true,
+            "min_font_pt": 7.0,
+            "step_pt": 0.5,
+            "line_spacing": 1.0,
+            "vertical_padding_in": 0.08
+          }
+        },
+        "footer_notes": {
+          "names": [
+            "Google Shape;1219;p46",
+            "Google Shape;1220;p46"
+          ]
+        }
+      }
+    },
+    "section_grid": {
+      "pptx_layout_name": "section_grid",
+      "template_slide_index": 3,
+      "placeholders": {
+        "title": {
+          "name": "Google Shape;1246;p47"
+        },
+        "sections": {
+          "type": "repeated_group",
+          "items": [
+            {
+              "label": "Google Shape;1251;p47",
+              "title": "Google Shape;1255;p47",
+              "description": "Google Shape;1248;p47"
+            },
+            {
+              "label": "Google Shape;1253;p47",
+              "title": "Google Shape;1256;p47",
+              "description": "Google Shape;1249;p47"
+            },
+            {
+              "label": "Google Shape;1252;p47",
+              "title": "Google Shape;1257;p47",
+              "description": "Google Shape;1247;p47"
+            },
+            {
+              "label": "Google Shape;1254;p47",
+              "title": "Google Shape;1258;p47",
+              "description": "Google Shape;1250;p47"
+            }
+          ]
+        }
+      }
+    }
+  }
 }

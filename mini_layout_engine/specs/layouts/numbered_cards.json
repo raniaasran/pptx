@@ -1,6 +1,7 @@
 {
   "layout_id": "numbered_cards",
   "description": "Use for slides with multiple numbered cards arranged horizontally, where each card contains a short title and a supporting description. Suitable for presenting examples, key points, or categorized items. A supporting illustration may appear alongside the cards.",
+  "continuation": true,
   "required_fields": [
     "title",
     "card_titles",

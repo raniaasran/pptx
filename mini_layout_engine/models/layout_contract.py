@@ -26,6 +26,7 @@ def _coerce_name_list(value: Any) -> list[str]:
 class LayoutArchetypeContract:
     layout_id: str
     description: str
+    continuation: bool = False
     required_fields: list[str] = field(default_factory=list)
     optional_fields: list[str] = field(default_factory=list)
     field_types: dict[str, str] = field(default_factory=dict)
@@ -54,6 +55,12 @@ class LayoutArchetypeContract:
             raise ValueError("Layout spec is missing required field 'layout_id'.")
 
         description = str(spec.get("description", "")).strip()
+        continuation = spec.get("continuation", False)
+        if not isinstance(continuation, bool):
+            raise ValueError(
+                f"Layout '{layout_id}' has invalid 'continuation'; expected boolean."
+            )
+
         required_fields = _coerce_name_list(spec.get("required_fields", []))
         optional_fields = _coerce_name_list(spec.get("optional_fields", []))
 
@@ -101,6 +108,7 @@ class LayoutArchetypeContract:
         return cls(
             layout_id=layout_id,
             description=description,
+            continuation=continuation,
             required_fields=required_fields,
             optional_fields=optional_fields,
             field_types=field_types,

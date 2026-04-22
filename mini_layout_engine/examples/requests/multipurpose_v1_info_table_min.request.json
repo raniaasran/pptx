@@ -1,0 +1,29 @@
+[
+  {
+    "request_id": "multipurpose_v1_info_table_min",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Feature Table",
+          "subtitle": "At a glance",
+          "rows": [
+            {
+              "label": "Speed",
+              "description": "Fast output"
+            },
+            {
+              "label": "Cost",
+              "description": "Low setup"
+            }
+          ],
+          "footer_notes": [
+            "Demo data",
+            "Internal use"
+          ]
+        }
+      }
+    ]
+  }
+]

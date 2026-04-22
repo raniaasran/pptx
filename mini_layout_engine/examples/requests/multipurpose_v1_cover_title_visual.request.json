@@ -1,0 +1,15 @@
+[
+  {
+    "request_id": "multipurpose_v1_cover_title_visual",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Climate Systems Brief",
+          "subtitle": "Three-minute executive snapshot"
+        }
+      }
+    ]
+  }
+]

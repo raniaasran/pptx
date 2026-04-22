@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from pathlib import Path
+import re
 from typing import Iterable
 
 from pptx import Presentation
@@ -31,6 +32,16 @@ class MiniPptxHelper:
             for shape in slide.shapes
             if int(getattr(shape, "shape_type", 0)) == int(MSO_SHAPE_TYPE.PICTURE)
         ]
+
+    def get_shape_by_name(self, slide_index: int, name: str):
+        target_name = str(name or "").strip()
+        if not target_name:
+            return None
+        slide = self.get_slide(slide_index)
+        for shape in slide.shapes:
+            if str(getattr(shape, "name", "")) == target_name:
+                return shape
+        return None
 
     def replace_text_preserve_format(self, shape, new_text: str) -> bool:
         if not getattr(shape, "has_text_frame", False):
@@ -67,6 +78,10 @@ class MiniPptxHelper:
         slide.shapes.add_picture(str(path), left, top, width, height)
         return True
 
+    def remove_shape(self, shape) -> None:
+        element = shape._element
+        element.getparent().remove(element)
+
     def delete_slide(self, slide_index: int) -> None:
         slides = list(self.prs.slides._sldIdLst)
         slide_id_to_remove = slides[slide_index].rId
@@ -77,6 +92,8 @@ class MiniPptxHelper:
         src_slide = self.prs.slides[slide_index]
         layout = src_slide.slide_layout
         new_slide = self.prs.slides.add_slide(layout)
+        for shape in list(new_slide.shapes):
+            self.remove_shape(shape)
 
         if insert_after_index is not None:
             sld_id_list = self.prs.slides._sldIdLst
@@ -89,11 +106,21 @@ class MiniPptxHelper:
         for rel_id in list(src_slide.part.rels):
             rel_obj = src_slide.part.rels[rel_id]
             try:
-                target_part = rel_obj.target_part
-            except AttributeError:
-                continue
-            try:
-                new_rel_id = new_slide.part.relate_to(target_part, rel_obj.reltype)
+                reltype = str(rel_obj.reltype)
+                if self._is_unsafe_copied_slide_relationship(reltype):
+                    continue
+                if bool(getattr(rel_obj, "is_external", False)):
+                    target_ref = getattr(rel_obj, "target_ref", None)
+                    if not target_ref:
+                        continue
+                    new_rel_id = new_slide.part.relate_to(
+                        target_ref,
+                        reltype,
+                        is_external=True,
+                    )
+                else:
+                    target_part = rel_obj.target_part
+                    new_rel_id = new_slide.part.relate_to(target_part, reltype)
             except Exception:
                 continue
             rel_map[rel_id] = new_rel_id
@@ -113,10 +140,175 @@ class MiniPptxHelper:
                     value = node.get(q_attr)
                     if value and value in rel_map:
                         node.set(q_attr, rel_map[value])
+                    elif value:
+                        node.attrib.pop(q_attr, None)
+                if self._is_hyperlink_node(node) and node.get(qn("r:id")) is None:
+                    parent = node.getparent()
+                    if parent is not None:
+                        parent.remove(node)
 
             new_slide.shapes._spTree.insert_element_before(new_element, "p:extLst")
 
+        self.assert_slide_relationship_integrity(len(self.prs.slides) - 1)
+        self.assert_no_duplicate_text_regions(len(self.prs.slides) - 1)
         return new_slide
+
+    @staticmethod
+    def _is_unsafe_copied_slide_relationship(reltype: str) -> bool:
+        unsafe_suffixes = (
+            "/notesSlide",
+            "/slide",
+            "/slideLayout",
+        )
+        return any(str(reltype).endswith(suffix) for suffix in unsafe_suffixes)
+
+    @staticmethod
+    def _is_hyperlink_node(node) -> bool:
+        tag = str(getattr(node, "tag", ""))
+        return tag.endswith("}hlinkClick") or tag.endswith("}hlinkHover")
+
+    @staticmethod
+    def _extract_relationship_refs(xml_text: str) -> set[str]:
+        return {
+            match.group(1)
+            for match in re.finditer(r'r:(?:id|embed)="([^"]+)"', xml_text)
+        }
+
+    def validate_slide_relationship_integrity(self, slide_index: int) -> list[str]:
+        slide = self.get_slide(slide_index)
+        xml_text = slide.part.blob.decode("utf-8", errors="ignore")
+        refs = self._extract_relationship_refs(xml_text)
+        rel_ids = set(str(rel_id) for rel_id in list(slide.part.rels))
+        missing = sorted(ref for ref in refs if ref not in rel_ids)
+        return missing
+
+    def assert_slide_relationship_integrity(self, slide_index: int) -> None:
+        missing = self.validate_slide_relationship_integrity(slide_index)
+        if missing:
+            raise ValueError(
+                f"Slide {slide_index + 1} has missing relationship IDs: {', '.join(missing)}"
+            )
+
+    def assert_all_slides_relationship_integrity(self) -> None:
+        issues: list[str] = []
+        for idx in range(self.slide_count()):
+            missing = self.validate_slide_relationship_integrity(idx)
+            if missing:
+                issues.append(
+                    f"slide {idx + 1}: {', '.join(missing)}"
+                )
+        if issues:
+            raise ValueError(
+                "Presentation has broken slide relationships: " + " | ".join(issues)
+            )
+
+    def validate_slide_hyperlink_integrity(self, slide_index: int) -> list[str]:
+        slide = self.get_slide(slide_index)
+        issues: list[str] = []
+        for element in slide.part._element.iter():
+            if not self._is_hyperlink_node(element):
+                continue
+            if element.get(qn("r:id")) is None:
+                issues.append(str(element.tag))
+        return issues
+
+    def assert_all_slides_hyperlink_integrity(self) -> None:
+        issues: list[str] = []
+        for idx in range(self.slide_count()):
+            slide_issues = self.validate_slide_hyperlink_integrity(idx)
+            if slide_issues:
+                issues.append(f"slide {idx + 1}: {', '.join(slide_issues)}")
+        if issues:
+            raise ValueError(
+                "Presentation has hyperlink nodes without relationship IDs: "
+                + " | ".join(issues)
+            )
+
+    def validate_slide_cross_references(self, slide_index: int) -> list[str]:
+        slide = self.get_slide(slide_index)
+        issues: list[str] = []
+        active_slide_partnames = {
+            str(self.get_slide(idx).part.partname).lstrip("/")
+            for idx in range(self.slide_count())
+        }
+        current_slide_partname = str(slide.part.partname).lstrip("/")
+
+        for rel_id in list(slide.part.rels):
+            rel_obj = slide.part.rels[rel_id]
+            reltype = str(rel_obj.reltype)
+            if reltype.endswith("/slide"):
+                try:
+                    target_partname = str(rel_obj.target_part.partname).lstrip("/")
+                except Exception:
+                    target_partname = ""
+                if target_partname not in active_slide_partnames:
+                    issues.append(
+                        f"{rel_id} points to non-active slide {target_partname or '<unknown>'}"
+                    )
+            elif reltype.endswith("/notesSlide"):
+                try:
+                    notes_part = rel_obj.target_part
+                except Exception:
+                    issues.append(f"{rel_id} notesSlide target is unavailable")
+                    continue
+                for notes_rel_id in list(notes_part.rels):
+                    notes_rel = notes_part.rels[notes_rel_id]
+                    if not str(notes_rel.reltype).endswith("/slide"):
+                        continue
+                    try:
+                        back_partname = str(notes_rel.target_part.partname).lstrip("/")
+                    except Exception:
+                        back_partname = ""
+                    if back_partname != current_slide_partname:
+                        issues.append(
+                            f"{rel_id} notesSlide back-reference points to "
+                            f"{back_partname or '<unknown>'}"
+                        )
+        return issues
+
+    def assert_all_slides_cross_references(self) -> None:
+        issues: list[str] = []
+        for idx in range(self.slide_count()):
+            slide_issues = self.validate_slide_cross_references(idx)
+            if slide_issues:
+                issues.append(f"slide {idx + 1}: " + "; ".join(slide_issues))
+        if issues:
+            raise ValueError(
+                "Presentation has invalid slide cross-references: " + " | ".join(issues)
+            )
+
+    def validate_duplicate_text_regions(self, slide_index: int) -> list[str]:
+        regions: dict[tuple[int, int, int, int], list[str]] = {}
+        for shape in self.text_shapes(slide_index):
+            key = (int(shape.left), int(shape.top), int(shape.width), int(shape.height))
+            regions.setdefault(key, []).append(str(getattr(shape, "name", "")))
+
+        issues: list[str] = []
+        for key, names in regions.items():
+            if len(names) <= 1:
+                continue
+            issues.append(f"{key}: " + ", ".join(names))
+        return issues
+
+    def assert_no_duplicate_text_regions(self, slide_index: int) -> None:
+        issues = self.validate_duplicate_text_regions(slide_index)
+        if issues:
+            raise ValueError(
+                f"Slide {slide_index + 1} has duplicate overlapping text regions: "
+                + " | ".join(issues)
+            )
+
+    def assert_all_slides_have_no_duplicate_text_regions(self) -> None:
+        issues: list[str] = []
+        for idx in range(self.slide_count()):
+            slide_issues = self.validate_duplicate_text_regions(idx)
+            if slide_issues:
+                issues.append(f"slide {idx + 1}: " + " | ".join(slide_issues))
+        if issues:
+            raise ValueError(
+                "Presentation has duplicate overlapping text regions: "
+                + " || ".join(issues)
+            )
 
     def save(self, output_path: str | Path) -> None:
         out = Path(output_path)

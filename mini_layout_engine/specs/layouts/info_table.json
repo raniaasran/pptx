@@ -1,0 +1,32 @@
+{
+  "layout_id": "info_table",
+  "description": "Use for structured informational slides that combine a main title, a short subtitle, a table with labeled rows and descriptions, and optional footer or supporting text blocks. The table is the main content area while preserving additional text regions from the template.",
+  "continuation": true,
+  "required_fields": [
+    "title",
+    "subtitle",
+    "rows"
+  ],
+  "optional_fields": [
+    "footer_notes"
+  ],
+  "field_types": {
+    "title": "string",
+    "subtitle": "string",
+    "rows": "object_list",
+    "footer_notes": "paragraph_list"
+  },
+  "constraints": {
+    "rows_item_schema": {
+      "label": "string",
+      "description": "string"
+    }
+  },
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "info_table.base"
+}

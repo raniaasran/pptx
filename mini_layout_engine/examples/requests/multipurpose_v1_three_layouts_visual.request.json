@@ -1,0 +1,59 @@
+[
+  {
+    "request_id": "multipurpose_v1_three_layouts_visual",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Operations Readiness",
+          "subtitle": "Template integration test deck"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Status Snapshot",
+          "subtitle": "Simple verification data",
+          "rows": [
+            {
+              "label": "Scope",
+              "description": "Three layouts"
+            },
+            {
+              "label": "Signal",
+              "description": "No template text"
+            }
+          ],
+          "footer_notes": [
+            "Combined deck",
+            "Static render test"
+          ]
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Verification Blocks",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Cover",
+              "description": "Title slide"
+            },
+            {
+              "label": "02",
+              "title": "Table",
+              "description": "Rows slide"
+            },
+            {
+              "label": "03",
+              "title": "Grid",
+              "description": "Blocks slide"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

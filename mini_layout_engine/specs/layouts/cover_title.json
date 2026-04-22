@@ -1,0 +1,22 @@
+{
+  "layout_id": "cover_title",
+  "description": "Use for presentation cover slides with a main title and a short subtitle or tagline. Typically used as the first slide to introduce the topic.",
+  "continuation": false,
+  "required_fields": [
+    "title",
+    "subtitle"
+  ],
+  "optional_fields": [],
+  "field_types": {
+    "title": "string",
+    "subtitle": "string"
+  },
+  "constraints": {},
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "cover_title.base"
+}
