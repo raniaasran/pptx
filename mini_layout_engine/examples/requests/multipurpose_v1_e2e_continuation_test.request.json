@@ -1,0 +1,120 @@
+[
+  {
+    "request_id": "multipurpose_v1_e2e_continuation_test",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Q3 Program Review",
+          "subtitle": "End-to-end continuation validation"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Quick Snapshot",
+          "subtitle": "Small table sanity check",
+          "rows": [
+            {
+              "label": "Scope",
+              "description": "Core rollout"
+            },
+            {
+              "label": "Status",
+              "description": "On track"
+            }
+          ],
+          "footer_notes": [
+            "Small-table check",
+            "Single-slide expected"
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Deep Dive",
+          "subtitle": "Stress dataset starts next"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Execution Risk Register",
+          "subtitle": "Stress test for pagination and continuation",
+          "rows": [
+            {
+              "label": "R01",
+              "description": "Dependencies between analytics, data engineering, and reporting are tightly coupled, so a delay in schema updates can cascade into missed milestone reviews unless owners align weekly cutoffs."
+            },
+            {
+              "label": "R02",
+              "description": "Vendor approval lead time is extending because security clarification loops now require additional evidence packages, which increases the chance of procurement drift against the baseline schedule."
+            },
+            {
+              "label": "R03",
+              "description": "Regional launch readiness is uneven; some markets have complete staffing while others rely on interim coverage, creating variability in response quality and backlog handling speed."
+            },
+            {
+              "label": "R04",
+              "description": "A shorter note to keep mixed density."
+            },
+            {
+              "label": "R05",
+              "description": "Testing environments are stable, but test data refresh cadence is not yet predictable, which causes rerun overhead and makes regression windows more expensive than planned."
+            },
+            {
+              "label": "R06",
+              "description": "Stakeholder communication improved this month; however, decision logs still arrive late in some workstreams, increasing interpretation risk during implementation handoffs."
+            },
+            {
+              "label": "R07",
+              "description": "Incident readiness playbooks exist but are inconsistently rehearsed; teams that skipped tabletop drills required longer triage windows during simulated failure scenarios."
+            },
+            {
+              "label": "R08",
+              "description": "Short row."
+            },
+            {
+              "label": "R09",
+              "description": "Cross-team KPI definitions are mostly aligned, yet edge-case handling for partial data arrivals differs by team, which can produce conflicting weekly trend narratives."
+            },
+            {
+              "label": "R10",
+              "description": "Customer-facing documentation is almost complete, but localization QA for two regions is pending, and unresolved terminology differences could impact support accuracy after launch."
+            },
+            {
+              "label": "R11",
+              "description": "Training completion is high, although reinforcement sessions are still needed for escalation paths and ownership boundaries to reduce ambiguity under operational pressure."
+            },
+            {
+              "label": "R12",
+              "description": "Short confirmation line."
+            },
+            {
+              "label": "R13",
+              "description": "Data quality monitors have good coverage for null and freshness checks, but anomaly thresholds need tuning to avoid alert fatigue and preserve operator trust in signal relevance."
+            },
+            {
+              "label": "R14",
+              "description": "Release governance gates are documented, yet parallel initiatives compete for reviewer bandwidth, creating periodic bottlenecks that can defer approvals by multiple days."
+            },
+            {
+              "label": "R15",
+              "description": "Short line for variance."
+            },
+            {
+              "label": "R16",
+              "description": "Mitigation owners are assigned across all top risks; next focus is converting mitigation status from narrative updates into measurable leading indicators for weekly steering review."
+            }
+          ],
+          "footer_notes": [
+            "Stress-table footer",
+            "Should appear on final continuation slide only"
+          ]
+        }
+      }
+    ]
+  }
+]

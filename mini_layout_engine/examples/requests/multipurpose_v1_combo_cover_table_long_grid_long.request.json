@@ -1,0 +1,62 @@
+[
+  {
+    "request_id": "multipurpose_v1_combo_cover_table_long_grid_long",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Combo Test D",
+          "subtitle": "Cover + long table + long grid"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Full Stress Table",
+          "subtitle": "Continuation heavy case",
+          "rows": [
+            {"label": "R01", "description": "Cross-team coordination latency can propagate delays when dependencies are not surfaced early in planning cycles."},
+            {"label": "R02", "description": "Approval queues become unstable under concurrent initiatives unless reviewers are shielded with capacity buffers."},
+            {"label": "R03", "description": "Data anomalies require clear triage ownership and escalation criteria to avoid unresolved quality debt."},
+            {"label": "R04", "description": "Support readiness depends on localized documentation consistency and scenario-based training coverage."},
+            {"label": "R05", "description": "Release governance quality improves when gate criteria are measurable and reviewed with consistent cadence."},
+            {"label": "R06", "description": "Monitoring thresholds should be tuned iteratively to preserve true-signal value and reduce noisy alerts."},
+            {"label": "R07", "description": "Incident drills expose ownership ambiguity that should be corrected before critical launch windows."},
+            {"label": "R08", "description": "Operational metrics interpretation can diverge without shared KPI definitions for edge-case handling."},
+            {"label": "R09", "description": "Escalation speed improves when decision logs are accessible and updated near real time by accountable owners."},
+            {"label": "R10", "description": "Mitigation plans need measurable leading indicators to support steering decisions in weekly reviews."},
+            {"label": "R11", "description": "Capacity bottlenecks in specialist reviews should be anticipated with fallback approval sequencing."},
+            {"label": "R12", "description": "Service stability is reinforced by repeatability in runbooks and post-incident action tracking."},
+            {"label": "R13", "description": "Execution variance decreases when dependencies are modeled explicitly across all active workstreams."},
+            {"label": "R14", "description": "Readiness confidence increases when pre-launch checklists map clearly to accountable roles and timelines."}
+          ],
+          "footer_notes": ["Heavy table", "Final footer only"]
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Grid Continuation Stress",
+          "sections": [
+            {"label": "01", "title": "Track One", "description": "Longer narrative content for adaptive fit validation."},
+            {"label": "02", "title": "Track Two", "description": "Longer narrative content for adaptive fit validation."},
+            {"label": "03", "title": "Track Three", "description": "Longer narrative content for adaptive fit validation."},
+            {"label": "04", "title": "Track Four", "description": "Longer narrative content for adaptive fit validation."},
+            {"label": "05", "title": "Track Five", "description": "Longer narrative content for adaptive fit validation."},
+            {"label": "06", "title": "Track Six", "description": "Longer narrative content for adaptive fit validation."},
+            {"label": "07", "title": "Track Seven", "description": "Longer narrative content for adaptive fit validation."},
+            {"label": "08", "title": "Track Eight", "description": "Longer narrative content for adaptive fit validation."}
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "End of Combo D",
+          "subtitle": "Both adaptive paths stressed"
+        }
+      }
+    ]
+  }
+]

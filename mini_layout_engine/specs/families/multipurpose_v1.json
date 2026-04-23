@@ -84,6 +84,18 @@
           ]
         }
       }
+    },
+    "hero_statement": {
+      "pptx_layout_name": "hero_statement",
+      "template_slide_index": 4,
+      "placeholders": {
+        "title": {
+          "name": "Google Shape;1263;p48"
+        },
+        "description": {
+          "name": "Google Shape;1264;p48"
+        }
+      }
     }
   }
 }

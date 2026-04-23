@@ -1,0 +1,29 @@
+[
+  {
+    "request_id": "hero_statement_font_behavior_test",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "hero_statement",
+        "content": {
+          "title": "WOW",
+          "description": "Short support line."
+        }
+      },
+      {
+        "layout_id": "hero_statement",
+        "content": {
+          "title": "A Strong Section Statement For The Next Chapter",
+          "description": "A concise supporting sentence to set direction."
+        }
+      },
+      {
+        "layout_id": "hero_statement",
+        "content": {
+          "title": "A very long hero statement title intended to stress rendering behavior and show whether this layout keeps title typography under control or allows uncontrolled oversizing across multiple wrapped lines in the available title box",
+          "description": "Support text for long title case."
+        }
+      }
+    ]
+  }
+]

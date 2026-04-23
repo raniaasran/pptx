@@ -1,0 +1,31 @@
+[
+  {
+    "request_id": "multipurpose_v1_section_grid_stress_3_longish_sections",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Stress Test - 3 Longer Sections",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Operational Readiness",
+              "description": "Operational readiness needs coordinated planning, explicit handoff ownership, and dependable review cadence to keep execution stable under changing constraints."
+            },
+            {
+              "label": "02",
+              "title": "Data Reliability",
+              "description": "Reliability improves when anomaly detection, triage workflows, and refresh governance are consistently enforced across all reporting dependencies."
+            },
+            {
+              "label": "03",
+              "title": "Stakeholder Alignment",
+              "description": "Alignment quality increases when status updates include decision context, dependency impact, and measurable follow-up actions for each workstream."
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

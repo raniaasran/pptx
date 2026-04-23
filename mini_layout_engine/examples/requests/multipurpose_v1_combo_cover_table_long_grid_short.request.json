@@ -1,0 +1,55 @@
+[
+  {
+    "request_id": "multipurpose_v1_combo_cover_table_long_grid_short",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Combo Test B",
+          "subtitle": "Cover + long table + short grid"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Execution Risks",
+          "subtitle": "Long table stress case",
+          "rows": [
+            {"label": "R01", "description": "Dependencies across teams require synchronized cutoffs and clear ownership, otherwise schedule drift propagates into downstream milestones."},
+            {"label": "R02", "description": "Security review loops increase lead time when evidence quality is inconsistent, creating approval bottlenecks before release windows."},
+            {"label": "R03", "description": "Regional readiness differs by staffing coverage and training depth, affecting service consistency and escalation speed."},
+            {"label": "R04", "description": "Data refresh cadence remains variable, forcing reruns and increasing operational overhead for quality checks."},
+            {"label": "R05", "description": "Governance decisions occasionally arrive late, introducing ambiguity during implementation handoffs and execution planning."},
+            {"label": "R06", "description": "Incident playbook rehearsal gaps extend triage windows under high-load scenarios and reduce confidence in recovery timing."},
+            {"label": "R07", "description": "KPI definition edge cases still differ between teams, which can produce conflicting trend interpretation in status reviews."},
+            {"label": "R08", "description": "Localization QA timing is not yet stable, which can impact readiness for support enablement in select regions."},
+            {"label": "R09", "description": "Training completion is high but reinforcement on escalation boundaries is still needed to reduce ownership confusion."},
+            {"label": "R10", "description": "Monitoring thresholds need iterative tuning to reduce alert fatigue while preserving true-signal sensitivity."},
+            {"label": "R11", "description": "Reviewer bandwidth remains constrained during parallel initiatives, causing occasional governance gate delays."},
+            {"label": "R12", "description": "Mitigation tracking is improving but requires stronger measurable leading indicators for weekly steering decisions."}
+          ],
+          "footer_notes": ["Long table combo", "Footer on final continuation only"]
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Workstream Summary",
+          "sections": [
+            {"label": "01", "title": "Scope", "description": "Confirm priorities"},
+            {"label": "02", "title": "Owners", "description": "Assign leads"},
+            {"label": "03", "title": "Timing", "description": "Track milestones"}
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "End of Combo B",
+          "subtitle": "Long-table continuation checked"
+        }
+      }
+    ]
+  }
+]

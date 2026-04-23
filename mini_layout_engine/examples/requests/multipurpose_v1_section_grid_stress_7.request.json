@@ -1,0 +1,49 @@
+{
+  "request_id": "multipurpose_v1_section_grid_stress_7",
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "section_grid",
+      "content": {
+        "title": "Section Grid STRESS - 7 Sections",
+        "sections": [
+          {
+            "label": "01",
+            "title": "Critical Workstream 01",
+            "description": "This is a stress scenario for stream 01 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "02",
+            "title": "Critical Workstream 02",
+            "description": "This is a stress scenario for stream 02 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "03",
+            "title": "Critical Workstream 03",
+            "description": "This is a stress scenario for stream 03 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "04",
+            "title": "Critical Workstream 04",
+            "description": "This is a stress scenario for stream 04 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "05",
+            "title": "Critical Workstream 05",
+            "description": "This is a stress scenario for stream 05 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "06",
+            "title": "Critical Workstream 06",
+            "description": "This is a stress scenario for stream 06 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "07",
+            "title": "Critical Workstream 07",
+            "description": "This is a stress scenario for stream 07 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          }
+        ]
+      }
+    }
+  ]
+}

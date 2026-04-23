@@ -1,0 +1,34 @@
+{
+  "request_id": "multipurpose_v1_section_grid_stress_4",
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "section_grid",
+      "content": {
+        "title": "Section Grid STRESS - 4 Sections",
+        "sections": [
+          {
+            "label": "01",
+            "title": "Critical Workstream 01",
+            "description": "This is a stress scenario for stream 01 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "02",
+            "title": "Critical Workstream 02",
+            "description": "This is a stress scenario for stream 02 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "03",
+            "title": "Critical Workstream 03",
+            "description": "This is a stress scenario for stream 03 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          },
+          {
+            "label": "04",
+            "title": "Critical Workstream 04",
+            "description": "This is a stress scenario for stream 04 with longer wrapped content, additional clarification notes, implementation dependencies, and validation checkpoints to push density and line-wrapping behavior in adaptive rendering."
+          }
+        ]
+      }
+    }
+  ]
+}

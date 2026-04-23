@@ -1,0 +1,349 @@
+[
+  {
+    "request_id": "multipurpose_v1_integration_regression_mix",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Integration Regression Deck",
+          "subtitle": "multipurpose_v1 mixed layouts"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Small Table Check",
+          "subtitle": "Compact content, single slide expected",
+          "rows": [
+            {
+              "label": "Scope",
+              "description": "Core stream"
+            },
+            {
+              "label": "Status",
+              "description": "On track"
+            },
+            {
+              "label": "Owner",
+              "description": "PMO"
+            }
+          ],
+          "footer_notes": [
+            "Small table",
+            "No continuation target"
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Tables",
+          "subtitle": "Moving to medium density"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Medium Table Check",
+          "subtitle": "Moderate rows and mixed lengths",
+          "rows": [
+            {
+              "label": "M01",
+              "description": "Weekly alignment completed across product and delivery owners."
+            },
+            {
+              "label": "M02",
+              "description": "Dependency tracking updated with explicit milestone dates."
+            },
+            {
+              "label": "M03",
+              "description": "Quality gates reviewed and action owners confirmed."
+            },
+            {
+              "label": "M04",
+              "description": "Operations playbook refreshed for rollout support."
+            },
+            {
+              "label": "M05",
+              "description": "Readiness checklist approved by steering group."
+            },
+            {
+              "label": "M06",
+              "description": "Escalation path validated in live rehearsal."
+            }
+          ],
+          "footer_notes": [
+            "Medium table",
+            "Mixed row lengths"
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Table Continuation",
+          "subtitle": "Long table stress case"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Long Table Continuation",
+          "subtitle": "Stress rows with wrapped text",
+          "rows": [
+            {
+              "label": "L01",
+              "description": "Cross-team scheduling remains sensitive because upstream schema changes and downstream reporting windows are tightly coupled, requiring coordinated cutoffs and fallback plans."
+            },
+            {
+              "label": "L02",
+              "description": "Vendor onboarding checkpoints now include expanded security evidence review, which increases cycle time and can delay procurement readiness unless approvals are batched carefully."
+            },
+            {
+              "label": "L03",
+              "description": "Regional staffing coverage differs by market, so support quality consistency depends on interim training plans and structured shift handovers during peak windows."
+            },
+            {
+              "label": "L04",
+              "description": "Data refresh cadence still varies across environments, creating rerun overhead and increasing coordination effort for release validation teams."
+            },
+            {
+              "label": "L05",
+              "description": "Stakeholder decisions are documented, but publication lag occasionally causes teams to execute against stale assumptions during handoff windows."
+            },
+            {
+              "label": "L06",
+              "description": "Incident simulation exercises show improving response speed; however, ownership boundaries still need clearer escalation criteria for complex failure modes."
+            },
+            {
+              "label": "L07",
+              "description": "Documentation localization remains in progress for two regions, and unresolved terminology differences can reduce support accuracy after launch."
+            },
+            {
+              "label": "L08",
+              "description": "Training completion is high overall, yet reinforcement is needed for edge-case triage to reduce ambiguity during operational pressure."
+            },
+            {
+              "label": "L09",
+              "description": "Metric definitions are aligned for core KPIs, but partial data arrival handling still differs and can create conflicting trend narratives."
+            },
+            {
+              "label": "L10",
+              "description": "Release governance gates are established, though reviewer bandwidth competition across initiatives can defer approvals by multiple days."
+            },
+            {
+              "label": "L11",
+              "description": "Monitoring coverage is strong for freshness and null checks, but anomaly thresholds need tuning to avoid alert fatigue and preserve trust."
+            },
+            {
+              "label": "L12",
+              "description": "Mitigation tracking is active with named owners, and next step is turning narrative updates into measurable leading indicators."
+            }
+          ],
+          "footer_notes": [
+            "Long table stress case",
+            "Footer should appear on final continuation slide only"
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Section Grid",
+          "subtitle": "Short 4-section baseline"
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Grid 4 Short",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Plan",
+              "description": "Define scope"
+            },
+            {
+              "label": "02",
+              "title": "Build",
+              "description": "Implement core"
+            },
+            {
+              "label": "03",
+              "title": "Test",
+              "description": "Validate quality"
+            },
+            {
+              "label": "04",
+              "title": "Launch",
+              "description": "Go live"
+            }
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Section Grid",
+          "subtitle": "Long text stress"
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Grid 3 Long",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Discovery",
+              "description": "Collect detailed requirements, map stakeholder expectations, and align assumptions before implementation sequencing begins."
+            },
+            {
+              "label": "02",
+              "title": "Execution",
+              "description": "Coordinate development milestones, cross-functional dependencies, and quality checkpoints while preserving delivery predictability."
+            },
+            {
+              "label": "03",
+              "title": "Readiness",
+              "description": "Finalize operational playbooks, support handoff procedures, and launch controls for stable post-release monitoring."
+            }
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Section Grid",
+          "subtitle": "Dense short content"
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Grid 6 Short",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Scope",
+              "description": "Confirm boundaries"
+            },
+            {
+              "label": "02",
+              "title": "Owners",
+              "description": "Assign leads"
+            },
+            {
+              "label": "03",
+              "title": "Data",
+              "description": "Verify inputs"
+            },
+            {
+              "label": "04",
+              "title": "Risk",
+              "description": "Track blockers"
+            },
+            {
+              "label": "05",
+              "title": "Quality",
+              "description": "Check outputs"
+            },
+            {
+              "label": "06",
+              "title": "Review",
+              "description": "Close loop"
+            }
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Section Grid",
+          "subtitle": "Count continuation"
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Grid 8 Continuation",
+          "sections": [
+            {
+              "label": "01",
+              "title": "One",
+              "description": "Short item"
+            },
+            {
+              "label": "02",
+              "title": "Two",
+              "description": "Short item"
+            },
+            {
+              "label": "03",
+              "title": "Three",
+              "description": "Short item"
+            },
+            {
+              "label": "04",
+              "title": "Four",
+              "description": "Short item"
+            },
+            {
+              "label": "05",
+              "title": "Five",
+              "description": "Short item"
+            },
+            {
+              "label": "06",
+              "title": "Six",
+              "description": "Short item"
+            },
+            {
+              "label": "07",
+              "title": "Seven",
+              "description": "Short item"
+            },
+            {
+              "label": "08",
+              "title": "Eight",
+              "description": "Short item"
+            }
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Section Grid",
+          "subtitle": "Two long sections"
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Grid 2 Long",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Transformation Program",
+              "description": "Define an end-to-end execution baseline, align governance checkpoints, and coordinate implementation dependencies across delivery streams."
+            },
+            {
+              "label": "02",
+              "title": "Operational Stabilization",
+              "description": "Prepare support readiness, triage boundaries, escalation pathways, and KPI ownership for reliable adoption during phased rollout."
+            }
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "End of Deck",
+          "subtitle": "Integration regression completed"
+        }
+      }
+    ]
+  }
+]

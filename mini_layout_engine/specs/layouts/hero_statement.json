@@ -1,0 +1,22 @@
+{
+  "layout_id": "hero_statement",
+  "description": "Use this layout for a bold, attention-grabbing slide with a large title and a short supporting description. Ideal for section intros, key takeaways, transitions, or surprising/high-impact statements inside the presentation.",
+  "continuation": false,
+  "required_fields": [
+    "title",
+    "description"
+  ],
+  "optional_fields": [],
+  "field_types": {
+    "title": "string",
+    "description": "string"
+  },
+  "constraints": {},
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "hero_statement.base"
+}

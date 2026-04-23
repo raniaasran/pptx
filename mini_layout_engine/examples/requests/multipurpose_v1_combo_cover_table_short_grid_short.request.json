@@ -1,0 +1,46 @@
+[
+  {
+    "request_id": "multipurpose_v1_combo_cover_table_short_grid_short",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Combo Test A",
+          "subtitle": "Cover + short table + short grid"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Quick Metrics",
+          "subtitle": "Short table case",
+          "rows": [
+            {"label": "Speed", "description": "Fast output"},
+            {"label": "Cost", "description": "Low setup"}
+          ],
+          "footer_notes": ["Short table", "Single slide expected"]
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Grid Snapshot",
+          "sections": [
+            {"label": "01", "title": "Plan", "description": "Define scope"},
+            {"label": "02", "title": "Build", "description": "Create assets"},
+            {"label": "03", "title": "Review", "description": "Validate quality"},
+            {"label": "04", "title": "Deliver", "description": "Publish deck"}
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "End of Combo A",
+          "subtitle": "Baseline integration done"
+        }
+      }
+    ]
+  }
+]

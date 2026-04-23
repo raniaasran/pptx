@@ -1,0 +1,48 @@
+[
+  {
+    "request_id": "multipurpose_v1_combo_cover_table_short_grid_long",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Combo Test C",
+          "subtitle": "Cover + short table + long grid"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Mini Table",
+          "subtitle": "Short table case",
+          "rows": [
+            {"label": "Goal", "description": "Verify integration"},
+            {"label": "State", "description": "Stable"}
+          ],
+          "footer_notes": ["Short table", "No overflow expected"]
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Long Grid Stress",
+          "sections": [
+            {"label": "01", "title": "Operational Readiness", "description": "Operational readiness needs synchronized planning and explicit handoff boundaries to keep multi-team execution stable."},
+            {"label": "02", "title": "Data Reliability", "description": "Reliability depends on monitoring coverage, anomaly triage, and consistent refresh discipline across sources."},
+            {"label": "03", "title": "Stakeholder Alignment", "description": "Alignment improves when risk updates include dependency impacts and explicit decision records."},
+            {"label": "04", "title": "Execution Quality", "description": "Quality is protected through repeatable review cadence and measurable acceptance checks."},
+            {"label": "05", "title": "Service Stability", "description": "Stability requires mitigation rehearsal and documented incident ownership before peak demand periods."},
+            {"label": "06", "title": "Improvement Loop", "description": "Continuous improvement requires converting findings into measurable actions with weekly follow-up."}
+          ]
+        }
+      },
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "End of Combo C",
+          "subtitle": "Grid adaptive fallback checked"
+        }
+      }
+    ]
+  }
+]

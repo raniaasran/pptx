@@ -1,0 +1,44 @@
+{
+  "request_id": "multipurpose_v1_section_grid_medium_6",
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "section_grid",
+      "content": {
+        "title": "Section Grid MEDIUM - 6 Sections",
+        "sections": [
+          {
+            "label": "01",
+            "title": "Workstream 01",
+            "description": "Medium detail for stream 01 with clear actions and expected outcomes."
+          },
+          {
+            "label": "02",
+            "title": "Workstream 02",
+            "description": "Medium detail for stream 02 with clear actions and expected outcomes."
+          },
+          {
+            "label": "03",
+            "title": "Workstream 03",
+            "description": "Medium detail for stream 03 with clear actions and expected outcomes."
+          },
+          {
+            "label": "04",
+            "title": "Workstream 04",
+            "description": "Medium detail for stream 04 with clear actions and expected outcomes."
+          },
+          {
+            "label": "05",
+            "title": "Workstream 05",
+            "description": "Medium detail for stream 05 with clear actions and expected outcomes."
+          },
+          {
+            "label": "06",
+            "title": "Workstream 06",
+            "description": "Medium detail for stream 06 with clear actions and expected outcomes."
+          }
+        ]
+      }
+    }
+  ]
+}

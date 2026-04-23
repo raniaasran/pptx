@@ -1,0 +1,22 @@
+[
+  {
+    "request_id": "multipurpose_v1_section_grid_adaptive_6_short_3x2",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Adaptive Mode C",
+          "sections": [
+            {"label": "01", "title": "A", "description": "Quick note"},
+            {"label": "02", "title": "B", "description": "Quick note"},
+            {"label": "03", "title": "C", "description": "Quick note"},
+            {"label": "04", "title": "D", "description": "Quick note"},
+            {"label": "05", "title": "E", "description": "Quick note"},
+            {"label": "06", "title": "F", "description": "Quick note"}
+          ]
+        }
+      }
+    ]
+  }
+]

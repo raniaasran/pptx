@@ -1,0 +1,51 @@
+[
+  {
+    "request_id": "multipurpose_v1_section_grid_stress_7_sections",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Stress Test - 7 Sections",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Scope",
+              "description": "Define the active boundaries and responsibilities."
+            },
+            {
+              "label": "02",
+              "title": "Owners",
+              "description": "Assign clear ownership across all open tracks."
+            },
+            {
+              "label": "03",
+              "title": "Data",
+              "description": "Validate source quality and refresh behavior."
+            },
+            {
+              "label": "04",
+              "title": "Risk",
+              "description": "Track top operational risks and mitigation status."
+            },
+            {
+              "label": "05",
+              "title": "Quality",
+              "description": "Run targeted checks before each release window."
+            },
+            {
+              "label": "06",
+              "title": "Support",
+              "description": "Confirm handoff readiness for support teams."
+            },
+            {
+              "label": "07",
+              "title": "Review",
+              "description": "Close loop with measurable weekly outcomes."
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

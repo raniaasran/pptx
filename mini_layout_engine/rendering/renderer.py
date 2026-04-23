@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,11 +10,14 @@ from mini_layout_engine.engine.planning_engine import PlanningEngine
 from mini_layout_engine.registry.family_registry import FamilyRegistry
 from mini_layout_engine.rendering.fit_utils import (
     emu_to_inches,
+    estimate_chars_per_line,
     estimate_line_height_in,
+    estimate_multiline_wrapped_lines,
     estimate_text_height_in,
     find_shrink_to_fit_font,
 )
 from mini_layout_engine.rendering.pptx_helper import MiniPptxHelper
+from pptx.oxml.ns import qn
 from pptx.util import Pt
 
 
@@ -31,6 +35,103 @@ class RenderResult:
             "skipped_slides": self.skipped_slides,
             "warnings": list(self.warnings),
         }
+
+
+SECTION_MODE_SPECS: dict[str, dict[str, Any]] = {
+    "2x1": {
+        "rows": 1,
+        "cols": 2,
+        "capacity": 2,
+        "min_label_pt": 24.0,
+        "min_title_pt": 20.0,
+        "min_desc_pt": 15.0,
+        "max_title_lines": 2,
+        "max_desc_lines": 4,
+        "allow_desc_truncation": True,
+        "max_desc_truncation_ratio": 0.10,
+    },
+    "2x2": {
+        "rows": 2,
+        "cols": 2,
+        "capacity": 4,
+        "min_label_pt": 22.0,
+        "min_title_pt": 18.0,
+        "min_desc_pt": 13.0,
+        "max_title_lines": 2,
+        "max_desc_lines": 3,
+        "allow_desc_truncation": True,
+        "max_desc_truncation_ratio": 0.08,
+    },
+    "3x2": {
+        "rows": 3,
+        "cols": 2,
+        "capacity": 6,
+        "min_label_pt": 20.0,
+        "min_title_pt": 16.0,
+        "min_desc_pt": 12.0,
+        "max_title_lines": 1,
+        "max_desc_lines": 2,
+        "allow_desc_truncation": False,
+        "max_desc_truncation_ratio": 0.0,
+    },
+}
+
+# Dedicated geometry ratios for single-section full-width rendering.
+# This is intentionally separate from template slot-derived ratios so the
+# label/title/description composition stays balanced in 1x1 pages.
+SECTION_SINGLE_FULLWIDTH_RATIOS: dict[str, tuple[float, float, float, float]] = {
+    "label": (0.16, 0.23, 0.10, 0.22),
+    "title": (0.27, 0.23, 0.58, 0.22),
+    "description": (0.27, 0.53, 0.58, 0.31),
+}
+
+SECTION_REASON_CODES = (
+    "title_min_font",
+    "desc_min_font",
+    "title_line_limit",
+    "desc_line_limit",
+    "desc_truncation_required",
+    "label_overflow",
+)
+
+
+@dataclass(frozen=True)
+class SectionShapeSlot:
+    label_name: str
+    title_name: str
+    description_name: str
+    x_in: float
+    y_in: float
+    w_in: float
+    h_in: float
+
+
+@dataclass(frozen=True)
+class SectionFieldRectRatios:
+    label: tuple[float, float, float, float]
+    title: tuple[float, float, float, float]
+    description: tuple[float, float, float, float]
+
+
+@dataclass
+class SectionFitOutcome:
+    passed: bool
+    section: dict[str, Any]
+    rendered: dict[str, str]
+    fonts: dict[str, float]
+    lines: dict[str, int]
+    reason_codes: list[str]
+
+
+@dataclass(frozen=True)
+class SectionGridGeometry:
+    content_left_in: float
+    content_top_in: float
+    content_width_in: float
+    content_height_in: float
+    slots: list[SectionShapeSlot]
+    field_ratios: SectionFieldRectRatios
+    template_fonts_pt: dict[str, float]
 
 
 class MiniPptxRenderer:
@@ -131,6 +232,15 @@ class MiniPptxRenderer:
                     warnings=warnings,
                 )
                 continue
+            if self._supports_adaptive_section_grid(layout_id, mapped_layout):
+                rendered += self._render_adaptive_section_grid_slides(
+                    helper,
+                    prototype_index,
+                    content,
+                    mapped_layout=mapped_layout,
+                    warnings=warnings,
+                )
+                continue
 
             helper.duplicate_slide(prototype_index)
             target_index = helper.slide_count() - 1
@@ -141,6 +251,20 @@ class MiniPptxRenderer:
                 content,
                 mapped_layout=mapped_layout,
             )
+            if layout_id == "cover_title":
+                self._apply_cover_title_shrink_to_fit(
+                    helper,
+                    target_index,
+                    content=content,
+                    mapped_layout=mapped_layout,
+                )
+            if layout_id == "hero_statement":
+                self._apply_hero_statement_shrink_to_fit(
+                    helper,
+                    target_index,
+                    content=content,
+                    mapped_layout=mapped_layout,
+                )
 
             image_ref = self._extract_image_ref(content)
             if image_ref:
@@ -201,6 +325,63 @@ class MiniPptxRenderer:
                 prototype_map[str(layout_id)] = resolved
         return prototype_map
 
+    def _apply_cover_title_shrink_to_fit(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        *,
+        content: Mapping[str, Any],
+        mapped_layout: Mapping[str, Any],
+    ) -> None:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return
+        title_mapping = placeholders.get("title")
+        if not isinstance(title_mapping, Mapping):
+            return
+
+        title_shape_name = str(title_mapping.get("name", "")).strip()
+        if not title_shape_name:
+            return
+        title_shape = helper.get_shape_by_name(slide_index, title_shape_name)
+        if title_shape is None or not getattr(title_shape, "has_text_frame", False):
+            return
+
+        title_text = str(content.get("title", "") or "").strip()
+        if not title_text:
+            return
+
+        text_frame = title_shape.text_frame
+        margin_left = int(getattr(text_frame, "margin_left", 0) or 0)
+        margin_right = int(getattr(text_frame, "margin_right", 0) or 0)
+        margin_top = int(getattr(text_frame, "margin_top", 0) or 0)
+        margin_bottom = int(getattr(text_frame, "margin_bottom", 0) or 0)
+        width_emu = int(title_shape.width) - margin_left - margin_right
+        height_emu = int(title_shape.height) - margin_top - margin_bottom
+        fit_width_in = max(0.1, emu_to_inches(width_emu))
+        fit_height_in = max(0.1, emu_to_inches(height_emu))
+
+        template_font_pt = self._shape_template_font_pt(title_shape, fallback=52.0)
+        min_font_pt = 12.0
+        fit = find_shrink_to_fit_font(
+            title_text,
+            width_in=fit_width_in,
+            height_in=fit_height_in,
+            template_font_pt=float(template_font_pt),
+            min_font_pt=min_font_pt,
+            step_pt=0.5,
+            line_spacing=1.0,
+            vertical_padding_in=0.02,
+        )
+        final_font_pt: float
+        if fit is None:
+            # Keep cover output stable for extreme titles: never leave template-size overflow.
+            final_font_pt = float(min_font_pt)
+        else:
+            final_font_pt = float(fit.font_size_pt)
+        if final_font_pt <= float(template_font_pt):
+            self._set_text_shape_font_size(title_shape, final_font_pt)
+
     def _supports_paginated_table(
         self,
         layout_id: str,
@@ -216,6 +397,988 @@ class MiniPptxRenderer:
             isinstance(rows_mapping, Mapping)
             and str(rows_mapping.get("type", "")).strip() == "table"
         )
+
+    def _apply_hero_statement_shrink_to_fit(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        *,
+        content: Mapping[str, Any],
+        mapped_layout: Mapping[str, Any],
+    ) -> None:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return
+        title_mapping = placeholders.get("title")
+        if not isinstance(title_mapping, Mapping):
+            return
+
+        title_shape_name = str(title_mapping.get("name", "")).strip()
+        if not title_shape_name:
+            return
+        title_shape = helper.get_shape_by_name(slide_index, title_shape_name)
+        if title_shape is None or not getattr(title_shape, "has_text_frame", False):
+            return
+
+        title_text = str(content.get("title", "") or "").strip()
+        if not title_text:
+            return
+
+        text_frame = title_shape.text_frame
+        margin_left = int(getattr(text_frame, "margin_left", 0) or 0)
+        margin_right = int(getattr(text_frame, "margin_right", 0) or 0)
+        margin_top = int(getattr(text_frame, "margin_top", 0) or 0)
+        margin_bottom = int(getattr(text_frame, "margin_bottom", 0) or 0)
+        width_emu = int(title_shape.width) - margin_left - margin_right
+        height_emu = int(title_shape.height) - margin_top - margin_bottom
+        fit_width_in = max(0.1, emu_to_inches(width_emu))
+        fit_height_in = max(0.1, emu_to_inches(height_emu))
+
+        template_font_pt = self._hero_statement_template_font_pt(title_shape, fallback=52.0)
+        min_font_pt = 12.0
+        fit = find_shrink_to_fit_font(
+            title_text,
+            width_in=fit_width_in,
+            height_in=fit_height_in,
+            template_font_pt=float(template_font_pt),
+            min_font_pt=min_font_pt,
+            step_pt=0.5,
+            line_spacing=1.0,
+            vertical_padding_in=0.02,
+        )
+        if fit is None:
+            self._set_text_shape_font_size(title_shape, float(min_font_pt))
+            return
+
+        # Preserve template-inherited look when text already fits at baseline.
+        normalized = " ".join(title_text.split())
+        has_multiple_words = len(normalized.split()) > 1
+        wrapped_lines = int(getattr(fit.metrics, "estimated_lines", 1) or 1)
+        should_force_explicit_fit = has_multiple_words or wrapped_lines > 1
+        if (
+            float(fit.font_size_pt) < float(template_font_pt)
+            or should_force_explicit_fit
+        ):
+            self._set_text_shape_font_size(title_shape, float(fit.font_size_pt))
+
+    def _hero_statement_template_font_pt(self, shape: Any, *, fallback: float) -> float:
+        # Prefer explicit run sizing when present.
+        explicit = self._shape_template_font_pt(shape, fallback=fallback)
+        if explicit != float(fallback):
+            return float(explicit)
+
+        # Hero title in this template can inherit sizing from placeholder style.
+        try:
+            ns = {"a": "http://schemas.openxmlformats.org/drawingml/2006/main"}
+            def_rpr = shape._element.find(
+                ".//a:txBody/a:lstStyle/a:lvl1pPr/a:defRPr",
+                namespaces=ns,
+            )
+            if def_rpr is not None:
+                sz = def_rpr.get("sz")
+                if sz:
+                    return max(1.0, float(sz) / 100.0)
+        except Exception:
+            pass
+        return float(fallback)
+
+    def _supports_adaptive_section_grid(
+        self,
+        layout_id: str,
+        mapped_layout: Mapping[str, Any],
+    ) -> bool:
+        if layout_id != "section_grid":
+            return False
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return False
+        sections_mapping = placeholders.get("sections")
+        if not isinstance(sections_mapping, Mapping):
+            return False
+        return str(sections_mapping.get("type", "")).strip() == "repeated_group"
+
+    def _render_adaptive_section_grid_slides(
+        self,
+        helper: MiniPptxHelper,
+        prototype_index: int,
+        content: Mapping[str, Any],
+        *,
+        mapped_layout: Mapping[str, Any],
+        warnings: list[str],
+    ) -> int:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return 0
+        sections_mapping = placeholders.get("sections")
+        if not isinstance(sections_mapping, Mapping):
+            return 0
+        title_mapping = placeholders.get("title")
+        title_shape_name = ""
+        if isinstance(title_mapping, Mapping):
+            title_shape_name = str(title_mapping.get("name", "")).strip()
+
+        sections = self._coerce_section_items(content.get("sections", []))
+        geometry = self._extract_section_grid_geometry(
+            helper,
+            prototype_index=prototype_index,
+            sections_mapping=sections_mapping,
+            warnings=warnings,
+        )
+        if geometry is None:
+            helper.duplicate_slide(prototype_index)
+            target_index = helper.slide_count() - 1
+            self._render_slide_content(
+                helper,
+                target_index,
+                content,
+                mapped_layout=mapped_layout,
+            )
+            warnings.append(
+                "section_grid adaptive mode unavailable; rendered with static repeated-group mapping."
+            )
+            return 1
+
+        plan = self._plan_section_grid_pages(
+            sections=sections,
+            geometry=geometry,
+            warnings=warnings,
+        )
+        diagnostics = plan.get("diagnostics", [])
+        if isinstance(diagnostics, list):
+            for diag in diagnostics:
+                if isinstance(diag, Mapping):
+                    warnings.append("section_grid_diagnostic: " + json.dumps(dict(diag), ensure_ascii=False))
+        pages = plan.get("pages", [])
+        if not isinstance(pages, list) or not pages:
+            pages = [{"mode": "2x2", "sections": []}]
+
+        rendered = 0
+        for page in pages:
+            mode = str(page.get("mode", "2x2"))
+            page_sections = page.get("sections", [])
+            if not isinstance(page_sections, list):
+                page_sections = []
+
+            helper.duplicate_slide(prototype_index)
+            target_index = helper.slide_count() - 1
+            self._render_section_grid_page(
+                helper,
+                slide_index=target_index,
+                title_shape_name=title_shape_name,
+                title_text=str(content.get("title", "") or ""),
+                sections_mapping=sections_mapping,
+                geometry=geometry,
+                mode=mode,
+                page_sections=page_sections,
+                forced_page_size=page.get("forced_page_size"),
+            )
+            rendered += 1
+        return rendered
+
+    def _coerce_section_items(self, value: Any) -> list[dict[str, Any]]:
+        if not isinstance(value, list):
+            return []
+        items: list[dict[str, Any]] = []
+        for item in value:
+            if not isinstance(item, Mapping):
+                continue
+            items.append(
+                {
+                    "label": str(item.get("label", "") or "").strip(),
+                    "title": str(item.get("title", "") or "").strip(),
+                    "description": str(item.get("description", "") or "").strip(),
+                }
+            )
+        return items
+
+    def _extract_section_grid_geometry(
+        self,
+        helper: MiniPptxHelper,
+        *,
+        prototype_index: int,
+        sections_mapping: Mapping[str, Any],
+        warnings: list[str],
+    ) -> SectionGridGeometry | None:
+        items = sections_mapping.get("items")
+        if not isinstance(items, list) or len(items) < 4:
+            warnings.append("section_grid placeholders.items must contain at least 4 blocks.")
+            return None
+
+        slot_entries: list[SectionShapeSlot] = []
+        for entry in items[:4]:
+            if not isinstance(entry, Mapping):
+                warnings.append("section_grid item mapping is invalid.")
+                return None
+            label_name = str(entry.get("label", "")).strip()
+            title_name = str(entry.get("title", "")).strip()
+            description_name = str(entry.get("description", "")).strip()
+            label_shape = helper.get_shape_by_name(prototype_index, label_name)
+            title_shape = helper.get_shape_by_name(prototype_index, title_name)
+            desc_shape = helper.get_shape_by_name(prototype_index, description_name)
+            if label_shape is None or title_shape is None or desc_shape is None:
+                warnings.append(
+                    "section_grid adaptive mode could not find all mapped shapes on prototype slide."
+                )
+                return None
+            left = min(label_shape.left, title_shape.left, desc_shape.left)
+            top = min(label_shape.top, title_shape.top, desc_shape.top)
+            right = max(
+                label_shape.left + label_shape.width,
+                title_shape.left + title_shape.width,
+                desc_shape.left + desc_shape.width,
+            )
+            bottom = max(
+                label_shape.top + label_shape.height,
+                title_shape.top + title_shape.height,
+                desc_shape.top + desc_shape.height,
+            )
+            slot_entries.append(
+                SectionShapeSlot(
+                    label_name=label_name,
+                    title_name=title_name,
+                    description_name=description_name,
+                    x_in=emu_to_inches(left),
+                    y_in=emu_to_inches(top),
+                    w_in=emu_to_inches(right - left),
+                    h_in=emu_to_inches(bottom - top),
+                )
+            )
+
+        content_left = min(slot.x_in for slot in slot_entries)
+        content_top = min(slot.y_in for slot in slot_entries)
+        content_right = max(slot.x_in + slot.w_in for slot in slot_entries)
+        content_bottom = max(slot.y_in + slot.h_in for slot in slot_entries)
+
+        ref = slot_entries[0]
+        label_ref = helper.get_shape_by_name(prototype_index, ref.label_name)
+        title_ref = helper.get_shape_by_name(prototype_index, ref.title_name)
+        desc_ref = helper.get_shape_by_name(prototype_index, ref.description_name)
+        if label_ref is None or title_ref is None or desc_ref is None:
+            return None
+
+        ref_left_emu = int(round(ref.x_in * 914400))
+        ref_top_emu = int(round(ref.y_in * 914400))
+        ref_w_emu = int(round(ref.w_in * 914400))
+        ref_h_emu = int(round(ref.h_in * 914400))
+        field_ratios = SectionFieldRectRatios(
+            label=self._shape_rect_ratios(label_ref, ref_left_emu, ref_top_emu, ref_w_emu, ref_h_emu),
+            title=self._shape_rect_ratios(title_ref, ref_left_emu, ref_top_emu, ref_w_emu, ref_h_emu),
+            description=self._shape_rect_ratios(desc_ref, ref_left_emu, ref_top_emu, ref_w_emu, ref_h_emu),
+        )
+
+        template_fonts = {
+            "label": self._shape_template_font_pt(label_ref, fallback=26.0),
+            "title": self._shape_template_font_pt(title_ref, fallback=22.0),
+            "description": self._shape_template_font_pt(desc_ref, fallback=16.0),
+        }
+        return SectionGridGeometry(
+            content_left_in=content_left,
+            content_top_in=content_top,
+            content_width_in=max(0.1, content_right - content_left),
+            content_height_in=max(0.1, content_bottom - content_top),
+            slots=slot_entries,
+            field_ratios=field_ratios,
+            template_fonts_pt=template_fonts,
+        )
+
+    def _shape_rect_ratios(
+        self,
+        shape: Any,
+        parent_left_emu: int,
+        parent_top_emu: int,
+        parent_w_emu: int,
+        parent_h_emu: int,
+    ) -> tuple[float, float, float, float]:
+        safe_w = max(1, int(parent_w_emu))
+        safe_h = max(1, int(parent_h_emu))
+        x = (int(shape.left) - parent_left_emu) / safe_w
+        y = (int(shape.top) - parent_top_emu) / safe_h
+        w = int(shape.width) / safe_w
+        h = int(shape.height) / safe_h
+        return (
+            max(0.0, float(x)),
+            max(0.0, float(y)),
+            max(0.01, float(w)),
+            max(0.01, float(h)),
+        )
+
+    def _shape_template_font_pt(self, shape: Any, *, fallback: float) -> float:
+        sizes: list[float] = []
+        if not getattr(shape, "has_text_frame", False):
+            return float(fallback)
+        for paragraph in shape.text_frame.paragraphs:
+            for run in paragraph.runs:
+                size = getattr(run.font, "size", None)
+                if size is not None:
+                    sizes.append(float(size.pt))
+        if not sizes:
+            return float(fallback)
+        return min(sizes)
+
+    def _plan_section_grid_pages(
+        self,
+        *,
+        sections: list[dict[str, Any]],
+        geometry: SectionGridGeometry,
+        warnings: list[str],
+    ) -> dict[str, Any]:
+        n = len(sections)
+        diagnostics: list[dict[str, Any]] = []
+
+        if n <= 2:
+            attempt = self._evaluate_section_mode("2x1", sections, geometry)
+            if attempt["ok"]:
+                return {"pages": [{"mode": "2x1", "sections": attempt["sections"]}], "diagnostics": diagnostics}
+            if n == 2:
+                diagnostics.append(
+                    self._build_mode_rejection_diag(
+                        rejected_mode="2x1",
+                        attempt=attempt,
+                        fallback_selected="2x1_continuation",
+                    )
+                )
+                warnings.append("section_grid: 2x1 rejected for n=2; using 2x1 continuation.")
+                pages = self._paginate_sections_by_mode(
+                    sections=sections,
+                    mode="2x1",
+                    geometry=geometry,
+                    forced_page_size=1,
+                    diagnostics=diagnostics,
+                )
+                return {"pages": pages, "diagnostics": diagnostics}
+            diagnostics.append(
+                self._build_mode_rejection_diag(
+                    rejected_mode="2x1",
+                    attempt=attempt,
+                    fallback_selected="2x1_single",
+                )
+            )
+            warnings.append("section_grid: 2x1 thresholds not fully met for single section; rendered with bounded fallback.")
+            return {"pages": [{"mode": "2x1", "sections": attempt["sections"]}], "diagnostics": diagnostics}
+
+        if n <= 4:
+            attempt = self._evaluate_section_mode("2x2", sections, geometry)
+            if attempt["ok"]:
+                return {"pages": [{"mode": "2x2", "sections": attempt["sections"]}], "diagnostics": diagnostics}
+            diagnostics.append(
+                self._build_mode_rejection_diag(
+                    rejected_mode="2x2",
+                    attempt=attempt,
+                    fallback_selected="2x2_continuation",
+                )
+            )
+            warnings.append("section_grid: 2x2 fit rejected; using 2x2 continuation fallback.")
+            pages = self._paginate_sections_by_mode(
+                sections=sections,
+                mode="2x2",
+                geometry=geometry,
+                diagnostics=diagnostics,
+            )
+            return {"pages": pages, "diagnostics": diagnostics}
+
+        if n <= 6:
+            attempt = self._evaluate_section_mode("3x2", sections, geometry)
+            if attempt["ok"]:
+                return {"pages": [{"mode": "3x2", "sections": attempt["sections"]}], "diagnostics": diagnostics}
+            diagnostics.append(
+                self._build_mode_rejection_diag(
+                    rejected_mode="3x2",
+                    attempt=attempt,
+                    fallback_selected="2x2_continuation",
+                )
+            )
+            warnings.append("section_grid: 3x2 rejected; using 2x2 continuation fallback.")
+            pages = self._paginate_sections_by_mode(
+                sections=sections,
+                mode="2x2",
+                geometry=geometry,
+                diagnostics=diagnostics,
+            )
+            return {"pages": pages, "diagnostics": diagnostics}
+
+        warnings.append("section_grid: section count > 6; using deterministic 2x2 continuation.")
+        pages = self._paginate_sections_by_mode(
+            sections=sections,
+            mode="2x2",
+            geometry=geometry,
+            diagnostics=diagnostics,
+        )
+        return {"pages": pages, "diagnostics": diagnostics}
+
+    def _build_mode_rejection_diag(
+        self,
+        *,
+        rejected_mode: str,
+        attempt: Mapping[str, Any],
+        fallback_selected: str,
+    ) -> dict[str, Any]:
+        failed_indices = []
+        reason_codes: list[str] = []
+        outcomes = attempt.get("outcomes", [])
+        if isinstance(outcomes, list):
+            for idx, outcome in enumerate(outcomes):
+                if isinstance(outcome, SectionFitOutcome):
+                    if not outcome.passed:
+                        failed_indices.append(idx)
+                        reason_codes.extend(outcome.reason_codes)
+        unique_reasons = sorted(
+            reason
+            for reason in set(reason_codes)
+            if reason in SECTION_REASON_CODES
+        )
+        return {
+            "layout_id": "section_grid",
+            "rejected_mode": rejected_mode,
+            "reason_codes": unique_reasons,
+            "failed_section_indices": failed_indices,
+            "fallback_selected": fallback_selected,
+        }
+
+    def _paginate_sections_by_mode(
+        self,
+        *,
+        sections: list[dict[str, Any]],
+        mode: str,
+        geometry: SectionGridGeometry,
+        diagnostics: list[dict[str, Any]],
+        forced_page_size: int | None = None,
+    ) -> list[dict[str, Any]]:
+        mode_spec = SECTION_MODE_SPECS[mode]
+        max_per_page = int(forced_page_size or mode_spec["capacity"])
+        pages: list[dict[str, Any]] = []
+        cursor = 0
+        while cursor < len(sections):
+            chunk_raw = sections[cursor: cursor + max_per_page]
+            attempt = self._evaluate_section_mode(mode, chunk_raw, geometry)
+            if not attempt["ok"] and max_per_page > 1:
+                max_per_page -= 1
+                diagnostics.append(
+                    self._build_mode_rejection_diag(
+                        rejected_mode=mode,
+                        attempt=attempt,
+                        fallback_selected=f"{mode}_continuation_smaller_chunk_{max_per_page}",
+                    )
+                )
+                continue
+            pages.append(
+                {
+                    "mode": mode,
+                    "forced_page_size": int(forced_page_size) if forced_page_size is not None else None,
+                    "sections": attempt["sections"] if isinstance(attempt.get("sections"), list) else chunk_raw,
+                }
+            )
+            cursor += len(chunk_raw)
+        if not pages:
+            pages = [{"mode": mode, "sections": []}]
+        return pages
+
+    def _evaluate_section_mode(
+        self,
+        mode: str,
+        sections: list[dict[str, Any]],
+        geometry: SectionGridGeometry,
+    ) -> dict[str, Any]:
+        mode_spec = SECTION_MODE_SPECS[mode]
+        rows = int(mode_spec["rows"])
+        cols = int(mode_spec["cols"])
+        outcomes: list[SectionFitOutcome] = []
+        rendered_sections: list[dict[str, Any]] = []
+        ok = True
+        for idx, section in enumerate(sections):
+            field_rects = self._section_mode_field_rects(
+                mode=mode,
+                geometry=geometry,
+                section_index=idx,
+            )
+            outcome = self._evaluate_single_section_fit(
+                section=section,
+                field_rects=field_rects,
+                mode_spec=mode_spec,
+                geometry=geometry,
+            )
+            outcomes.append(outcome)
+            rendered_sections.append(
+                {
+                    "label": outcome.rendered.get("label", ""),
+                    "title": outcome.rendered.get("title", ""),
+                    "description": outcome.rendered.get("description", ""),
+                    "__fonts": dict(outcome.fonts),
+                }
+            )
+            if not outcome.passed:
+                ok = False
+        if len(sections) > rows * cols:
+            ok = False
+        return {"ok": ok, "sections": rendered_sections, "outcomes": outcomes}
+
+    def _section_mode_field_rects(
+        self,
+        *,
+        mode: str,
+        geometry: SectionGridGeometry,
+        section_index: int,
+        rows_override: int | None = None,
+        cols_override: int | None = None,
+    ) -> dict[str, tuple[float, float, float, float]]:
+        mode_spec = SECTION_MODE_SPECS[mode]
+        rows = int(rows_override if rows_override is not None else mode_spec["rows"])
+        cols = int(cols_override if cols_override is not None else mode_spec["cols"])
+        col = section_index % cols
+        row = section_index // cols
+        cell_w = geometry.content_width_in / cols
+        cell_h = geometry.content_height_in / rows
+        cell_x = geometry.content_left_in + (col * cell_w)
+        cell_y = geometry.content_top_in + (row * cell_h)
+        return {
+            "label": self._rect_from_ratio(cell_x, cell_y, cell_w, cell_h, geometry.field_ratios.label),
+            "title": self._rect_from_ratio(cell_x, cell_y, cell_w, cell_h, geometry.field_ratios.title),
+            "description": self._rect_from_ratio(
+                cell_x,
+                cell_y,
+                cell_w,
+                cell_h,
+                geometry.field_ratios.description,
+            ),
+        }
+
+    def _rect_from_ratio(
+        self,
+        x_in: float,
+        y_in: float,
+        w_in: float,
+        h_in: float,
+        ratio: tuple[float, float, float, float],
+    ) -> tuple[float, float, float, float]:
+        rx, ry, rw, rh = ratio
+        return (
+            x_in + (w_in * rx),
+            y_in + (h_in * ry),
+            max(0.05, w_in * rw),
+            max(0.05, h_in * rh),
+        )
+
+    def _evaluate_single_section_fit(
+        self,
+        *,
+        section: dict[str, Any],
+        field_rects: Mapping[str, tuple[float, float, float, float]],
+        mode_spec: Mapping[str, Any],
+        geometry: SectionGridGeometry,
+    ) -> SectionFitOutcome:
+        reason_codes: list[str] = []
+        rendered = {
+            "label": str(section.get("label", "") or "").strip(),
+            "title": str(section.get("title", "") or "").strip(),
+            "description": str(section.get("description", "") or "").strip(),
+        }
+        fonts: dict[str, float] = {}
+        lines: dict[str, int] = {}
+
+        # label
+        label_text = rendered["label"]
+        label_fit = self._fit_text_for_shape(
+            label_text,
+            field_rects["label"],
+            template_font_pt=float(geometry.template_fonts_pt["label"]),
+            min_font_pt=float(mode_spec["min_label_pt"]),
+            max_lines=1,
+            allow_truncation=False,
+            max_truncation_ratio=0.0,
+        )
+        fonts["label"] = float(label_fit["font_pt"])
+        lines["label"] = int(label_fit["lines"])
+        if not bool(label_fit["ok"]):
+            reason_codes.append("label_overflow")
+
+        # title
+        title_text = rendered["title"]
+        title_fit = self._fit_text_for_shape(
+            title_text,
+            field_rects["title"],
+            template_font_pt=float(geometry.template_fonts_pt["title"]),
+            min_font_pt=float(mode_spec["min_title_pt"]),
+            max_lines=int(mode_spec["max_title_lines"]),
+            allow_truncation=False,
+            max_truncation_ratio=0.0,
+        )
+        fonts["title"] = float(title_fit["font_pt"])
+        lines["title"] = int(title_fit["lines"])
+        if not bool(title_fit["ok"]):
+            if bool(title_fit.get("line_limit_failed", False)):
+                reason_codes.append("title_line_limit")
+            else:
+                reason_codes.append("title_min_font")
+
+        # description
+        desc_text = rendered["description"]
+        desc_fit = self._fit_text_for_shape(
+            desc_text,
+            field_rects["description"],
+            template_font_pt=float(geometry.template_fonts_pt["description"]),
+            min_font_pt=float(mode_spec["min_desc_pt"]),
+            max_lines=int(mode_spec["max_desc_lines"]),
+            allow_truncation=bool(mode_spec["allow_desc_truncation"]),
+            max_truncation_ratio=float(mode_spec["max_desc_truncation_ratio"]),
+        )
+        fonts["description"] = float(desc_fit["font_pt"])
+        lines["description"] = int(desc_fit["lines"])
+        rendered["description"] = str(desc_fit["text"])
+        if not bool(desc_fit["ok"]):
+            if bool(desc_fit.get("truncation_required", False)):
+                reason_codes.append("desc_truncation_required")
+            elif bool(desc_fit.get("line_limit_failed", False)):
+                reason_codes.append("desc_line_limit")
+            else:
+                reason_codes.append("desc_min_font")
+
+        return SectionFitOutcome(
+            passed=len(reason_codes) == 0,
+            section=dict(section),
+            rendered=rendered,
+            fonts=fonts,
+            lines=lines,
+            reason_codes=sorted(set(reason_codes)),
+        )
+
+    def _fit_text_for_shape(
+        self,
+        text: str,
+        rect: tuple[float, float, float, float],
+        *,
+        template_font_pt: float,
+        min_font_pt: float,
+        max_lines: int,
+        allow_truncation: bool,
+        max_truncation_ratio: float,
+    ) -> dict[str, Any]:
+        _, _, width_in, height_in = rect
+        raw_text = str(text or "").strip()
+        if not raw_text:
+            return {"ok": True, "text": "", "font_pt": template_font_pt, "lines": 0}
+
+        fit = find_shrink_to_fit_font(
+            raw_text,
+            width_in=width_in,
+            height_in=height_in,
+            template_font_pt=template_font_pt,
+            min_font_pt=min_font_pt,
+            step_pt=0.5,
+            line_spacing=1.0,
+            vertical_padding_in=0.02,
+        )
+        if fit is not None:
+            chars = estimate_chars_per_line(width_in, fit.font_size_pt)
+            wrapped_lines = estimate_multiline_wrapped_lines(raw_text, chars)
+            if wrapped_lines <= max_lines:
+                return {
+                    "ok": True,
+                    "text": raw_text,
+                    "font_pt": float(fit.font_size_pt),
+                    "lines": int(wrapped_lines),
+                }
+            if not allow_truncation:
+                return {
+                    "ok": False,
+                    "text": raw_text,
+                    "font_pt": float(fit.font_size_pt),
+                    "lines": int(wrapped_lines),
+                    "line_limit_failed": True,
+                }
+        elif not allow_truncation:
+            return {
+                "ok": False,
+                "text": raw_text,
+                "font_pt": float(min_font_pt),
+                "lines": max_lines + 1,
+            }
+
+        if not allow_truncation:
+            return {
+                "ok": False,
+                "text": raw_text,
+                "font_pt": float(min_font_pt),
+                "lines": max_lines + 1,
+                "truncation_required": True,
+            }
+
+        truncated = self._truncate_text_to_fit(
+            raw_text,
+            width_in=width_in,
+            height_in=height_in,
+            template_font_pt=template_font_pt,
+            min_font_pt=min_font_pt,
+            max_lines=max_lines,
+            max_truncation_ratio=max_truncation_ratio,
+        )
+        if truncated is None:
+            return {
+                "ok": False,
+                "text": raw_text,
+                "font_pt": float(min_font_pt),
+                "lines": max_lines + 1,
+                "truncation_required": True,
+            }
+        return truncated
+
+    def _truncate_text_to_fit(
+        self,
+        text: str,
+        *,
+        width_in: float,
+        height_in: float,
+        template_font_pt: float,
+        min_font_pt: float,
+        max_lines: int,
+        max_truncation_ratio: float,
+    ) -> dict[str, Any] | None:
+        tokens = str(text or "").split()
+        if not tokens:
+            return {"ok": True, "text": "", "font_pt": template_font_pt, "lines": 0}
+        total_chars = len(str(text))
+        min_chars_to_keep = max(1, int(round(total_chars * (1.0 - max_truncation_ratio))))
+
+        current_tokens = list(tokens)
+        while current_tokens:
+            candidate_text = " ".join(current_tokens).strip()
+            if len(candidate_text) < min_chars_to_keep:
+                break
+            if len(current_tokens) < len(tokens):
+                candidate_text = candidate_text.rstrip(".;,:") + "..."
+            fit = find_shrink_to_fit_font(
+                candidate_text,
+                width_in=width_in,
+                height_in=height_in,
+                template_font_pt=template_font_pt,
+                min_font_pt=min_font_pt,
+                step_pt=0.5,
+                line_spacing=1.0,
+                vertical_padding_in=0.02,
+            )
+            if fit is not None:
+                chars = estimate_chars_per_line(width_in, fit.font_size_pt)
+                wrapped_lines = estimate_multiline_wrapped_lines(candidate_text, chars)
+                if wrapped_lines <= max_lines:
+                    return {
+                        "ok": True,
+                        "text": candidate_text,
+                        "font_pt": float(fit.font_size_pt),
+                        "lines": int(wrapped_lines),
+                    }
+            current_tokens = current_tokens[:-1]
+        return None
+
+    def _render_section_grid_page(
+        self,
+        helper: MiniPptxHelper,
+        *,
+        slide_index: int,
+        title_shape_name: str,
+        title_text: str,
+        sections_mapping: Mapping[str, Any],
+        geometry: SectionGridGeometry,
+        mode: str,
+        page_sections: list[dict[str, Any]],
+        forced_page_size: int | None = None,
+    ) -> None:
+        if title_shape_name:
+            title_shape = helper.get_shape_by_name(slide_index, title_shape_name)
+            if title_shape is not None:
+                helper.replace_text_preserve_format(title_shape, title_text)
+
+        groups = self._materialize_section_shapes(
+            helper,
+            slide_index=slide_index,
+            sections_mapping=sections_mapping,
+            needed=max(len(page_sections), 1),
+        )
+        mode_spec = SECTION_MODE_SPECS.get(mode, SECTION_MODE_SPECS["2x2"])
+        capacity = int(mode_spec["capacity"])
+        active_count = min(len(page_sections), capacity)
+        use_single_section_full_width = active_count == 1
+
+        for index in range(min(active_count, len(groups))):
+            group = groups[index]
+            section = page_sections[index] if index < len(page_sections) else {}
+            if use_single_section_full_width:
+                field_rects = self._single_section_full_width_field_rects(
+                    geometry=geometry,
+                )
+            else:
+                field_rects = self._section_mode_field_rects(
+                    mode=mode,
+                    geometry=geometry,
+                    section_index=index,
+                )
+            self._position_and_fill_section_group(
+                helper,
+                slide_index=slide_index,
+                group=group,
+                field_rects=field_rects,
+                section=section,
+                mode=mode,
+                apply_title_desc_gap_clamp=use_single_section_full_width,
+            )
+
+        # Clear remaining template/cloned groups so nothing stale appears.
+        for index in range(active_count, len(groups)):
+            group = groups[index]
+            for key in ("label_name", "title_name", "description_name"):
+                shape = helper.get_shape_by_name(slide_index, str(group.get(key, "")))
+                if shape is not None:
+                    helper.remove_shape(shape)
+
+    def _single_section_full_width_field_rects(
+        self,
+        *,
+        geometry: SectionGridGeometry,
+    ) -> dict[str, tuple[float, float, float, float]]:
+        x_in = float(geometry.content_left_in)
+        y_in = float(geometry.content_top_in)
+        w_in = float(geometry.content_width_in)
+        h_in = float(geometry.content_height_in)
+        return {
+            "label": self._rect_from_ratio(x_in, y_in, w_in, h_in, SECTION_SINGLE_FULLWIDTH_RATIOS["label"]),
+            "title": self._rect_from_ratio(x_in, y_in, w_in, h_in, SECTION_SINGLE_FULLWIDTH_RATIOS["title"]),
+            "description": self._rect_from_ratio(
+                x_in,
+                y_in,
+                w_in,
+                h_in,
+                SECTION_SINGLE_FULLWIDTH_RATIOS["description"],
+            ),
+        }
+
+    def _materialize_section_shapes(
+        self,
+        helper: MiniPptxHelper,
+        *,
+        slide_index: int,
+        sections_mapping: Mapping[str, Any],
+        needed: int,
+    ) -> list[dict[str, str]]:
+        items = sections_mapping.get("items")
+        if not isinstance(items, list):
+            return []
+        groups: list[dict[str, str]] = []
+        for entry in items[:4]:
+            if not isinstance(entry, Mapping):
+                continue
+            groups.append(
+                {
+                    "label_name": str(entry.get("label", "")).strip(),
+                    "title_name": str(entry.get("title", "")).strip(),
+                    "description_name": str(entry.get("description", "")).strip(),
+                }
+            )
+        if not groups:
+            return []
+
+        while len(groups) < needed:
+            source = groups[(len(groups) - 2) % len(groups)] if len(groups) >= 2 else groups[0]
+            cloned = {
+                "label_name": self._clone_shape_by_name(
+                    helper,
+                    slide_index=slide_index,
+                    source_name=source["label_name"],
+                    suffix=f"__clone_{len(groups)+1}",
+                ),
+                "title_name": self._clone_shape_by_name(
+                    helper,
+                    slide_index=slide_index,
+                    source_name=source["title_name"],
+                    suffix=f"__clone_{len(groups)+1}",
+                ),
+                "description_name": self._clone_shape_by_name(
+                    helper,
+                    slide_index=slide_index,
+                    source_name=source["description_name"],
+                    suffix=f"__clone_{len(groups)+1}",
+                ),
+            }
+            groups.append(cloned)
+        return groups
+
+    def _clone_shape_by_name(
+        self,
+        helper: MiniPptxHelper,
+        *,
+        slide_index: int,
+        source_name: str,
+        suffix: str,
+    ) -> str:
+        shape = helper.get_shape_by_name(slide_index, source_name)
+        if shape is None:
+            return source_name
+        slide = helper.get_slide(slide_index)
+        new_element = deepcopy(shape._element)
+        new_name = f"{source_name}{suffix}"
+        c_nv_pr = new_element.find(".//{http://schemas.openxmlformats.org/presentationml/2006/main}cNvPr")
+        if c_nv_pr is not None:
+            c_nv_pr.set("name", new_name)
+        slide.shapes._spTree.insert_element_before(new_element, "p:extLst")
+        cloned = slide.shapes[-1]
+        return str(getattr(cloned, "name", new_name))
+
+    def _position_and_fill_section_group(
+        self,
+        helper: MiniPptxHelper,
+        *,
+        slide_index: int,
+        group: Mapping[str, str],
+        field_rects: Mapping[str, tuple[float, float, float, float]],
+        section: Mapping[str, Any],
+        mode: str,
+        apply_title_desc_gap_clamp: bool = False,
+    ) -> None:
+        fonts_raw = section.get("__fonts", {})
+        fonts = fonts_raw if isinstance(fonts_raw, Mapping) else {}
+        adjusted_rects = dict(field_rects)
+        if mode == "2x1" or apply_title_desc_gap_clamp:
+            adjusted_rects = self._clamp_section_title_desc_gap(
+                field_rects=field_rects,
+                gap_in=0.04,
+            )
+        label_shape = helper.get_shape_by_name(slide_index, str(group.get("label_name", "")))
+        title_shape = helper.get_shape_by_name(slide_index, str(group.get("title_name", "")))
+        desc_shape = helper.get_shape_by_name(slide_index, str(group.get("description_name", "")))
+        for field_name, shape in (
+            ("label", label_shape),
+            ("title", title_shape),
+            ("description", desc_shape),
+        ):
+            if shape is None:
+                continue
+            x_in, y_in, w_in, h_in = adjusted_rects[field_name]
+            shape.left = int(round(x_in * 914400))
+            shape.top = int(round(y_in * 914400))
+            shape.width = int(round(w_in * 914400))
+            shape.height = int(round(h_in * 914400))
+            text = str(section.get(field_name, "") or "").strip()
+            helper.replace_text_preserve_format(shape, text)
+            font_pt = fonts.get(field_name)
+            if font_pt is not None:
+                self._set_text_shape_font_size(shape, float(font_pt))
+
+    def _clamp_section_title_desc_gap(
+        self,
+        *,
+        field_rects: Mapping[str, tuple[float, float, float, float]],
+        gap_in: float,
+    ) -> dict[str, tuple[float, float, float, float]]:
+        adjusted = dict(field_rects)
+        title = adjusted.get("title")
+        desc = adjusted.get("description")
+        if title is None or desc is None:
+            return adjusted
+        tx, ty, tw, th = title
+        dx, dy, dw, dh = desc
+        min_desc_top = float(ty) + float(th) + max(0.0, float(gap_in))
+        if float(dy) < min_desc_top:
+            delta = min_desc_top - float(dy)
+            dy = min_desc_top
+            dh = max(0.05, float(dh) - delta)
+        adjusted["description"] = (float(dx), float(dy), float(dw), float(dh))
+        return adjusted
 
     def _render_paginated_table_slides(
         self,
@@ -269,8 +1432,9 @@ class MiniPptxRenderer:
                 helper,
                 target_index,
                 rows_mapping,
-                page["row_heights_in"],
+                page["active_row_heights_in"],
                 float(table_plan["font_size_pt"]),
+                target_table_height_in=float(page.get("target_table_height_in", 0.0)),
             )
             rendered += 1
         return rendered
@@ -289,7 +1453,15 @@ class MiniPptxRenderer:
             warnings.append("Could not paginate info_table because the table placeholder was not found.")
             return {
                 "font_size_pt": 10.0,
-                "pages": [{"rows": rows, "row_heights_in": []}],
+                "pages": [
+                    {
+                        "rows": rows,
+                        "active_row_heights_in": [],
+                        "used_body_height_in": 0.0,
+                        "is_final_page": True,
+                        "target_table_height_in": 0.0,
+                    }
+                ],
             }
 
         table = shape.table
@@ -334,7 +1506,39 @@ class MiniPptxRenderer:
             line_spacing=line_spacing,
             vertical_padding_in=vertical_padding_in,
         )
-        row_heights = [
+        row_heights = self._estimate_table_row_heights(
+            rows,
+            column_widths_in,
+            font_size_pt,
+            line_spacing=line_spacing,
+            vertical_padding_in=vertical_padding_in,
+            min_row_height_in=min_row_height_in,
+        )
+        pages = self._paginate_table_rows(
+            rows,
+            row_heights,
+            body_capacity_height_in=body_height_in,
+            max_rows_per_page=physical_row_count,
+            fixed_pre_start_height_in=fixed_pre_start_height_in,
+            full_table_height_in=table_height_in,
+        )
+
+        return {
+            "font_size_pt": font_size_pt,
+            "pages": pages,
+        }
+
+    def _estimate_table_row_heights(
+        self,
+        rows: list[dict[str, Any]],
+        column_widths_in: Mapping[str, float],
+        font_size_pt: float,
+        *,
+        line_spacing: float,
+        vertical_padding_in: float,
+        min_row_height_in: float,
+    ) -> list[float]:
+        return [
             self._estimate_table_row_height(
                 row,
                 column_widths_in,
@@ -346,36 +1550,76 @@ class MiniPptxRenderer:
             for row in rows
         ]
 
+    def _paginate_table_rows(
+        self,
+        rows: list[dict[str, Any]],
+        row_heights_in: list[float],
+        *,
+        body_capacity_height_in: float,
+        max_rows_per_page: int,
+        fixed_pre_start_height_in: float,
+        full_table_height_in: float,
+    ) -> list[dict[str, Any]]:
+        # Leave a small visual buffer so wrapped rows do not crowd the section below.
+        safety_margin_in = 0.04
+        capacity = max(0.01, float(body_capacity_height_in) - safety_margin_in)
+        max_rows = max(1, int(max_rows_per_page))
         pages: list[dict[str, Any]] = []
         cursor = 0
+
         while cursor < len(rows):
             used_height = 0.0
             page_rows: list[dict[str, Any]] = []
-            page_heights: list[float] = []
+            active_heights: list[float] = []
 
-            while cursor < len(rows) and len(page_rows) < physical_row_count:
-                candidate_height = row_heights[cursor]
-                if page_rows and used_height + candidate_height > body_height_in + 1e-6:
+            while cursor < len(rows) and len(page_rows) < max_rows:
+                next_height = min(max(0.01, float(row_heights_in[cursor])), capacity)
+                if page_rows and used_height + next_height > capacity + 1e-6:
                     break
                 page_rows.append(rows[cursor])
-                page_heights.append(candidate_height)
-                used_height += candidate_height
+                active_heights.append(next_height)
+                used_height += next_height
                 cursor += 1
 
-                if used_height >= body_height_in - 1e-6:
+                if used_height >= capacity - 1e-6:
                     break
 
             if not page_rows:
+                next_height = min(max(0.01, float(row_heights_in[cursor])), capacity)
                 page_rows.append(rows[cursor])
-                page_heights.append(body_height_in)
+                active_heights.append(next_height)
+                used_height = next_height
                 cursor += 1
 
-            pages.append({"rows": page_rows, "row_heights_in": page_heights})
+            pages.append(
+                {
+                    "rows": page_rows,
+                    "active_row_heights_in": active_heights,
+                    "used_body_height_in": used_height,
+                }
+            )
 
-        return {
-            "font_size_pt": font_size_pt,
-            "pages": pages,
-        }
+        if not pages:
+            pages = [
+                {
+                    "rows": [],
+                    "active_row_heights_in": [],
+                    "used_body_height_in": 0.0,
+                }
+            ]
+
+        for index, page in enumerate(pages):
+            is_final_page = index == len(pages) - 1
+            used_height = max(0.0, float(page["used_body_height_in"]))
+            active_count = len(page["rows"])
+            page["is_final_page"] = is_final_page
+            page["target_table_height_in"] = (
+                fixed_pre_start_height_in + used_height
+                if active_count < max_rows
+                else float(full_table_height_in)
+            )
+
+        return pages
 
     def _table_rows_height_in(self, table: Any, start_row: int, end_row: int) -> float:
         bounded_start = max(0, int(start_row))
@@ -475,82 +1719,56 @@ class MiniPptxRenderer:
         helper: MiniPptxHelper,
         slide_index: int,
         table_mapping: Mapping[str, Any],
-        row_heights_in: list[float],
+        active_row_heights_in: list[float],
         font_size_pt: float,
+        *,
+        target_table_height_in: float,
     ) -> None:
         shape = helper.get_shape_by_name(slide_index, str(table_mapping.get("name", "")))
         if shape is None or not getattr(shape, "has_table", False):
             return
 
         table = shape.table
+        template_table_height_in = emu_to_inches(shape.height)
         start_row = int(table_mapping.get("start_row", 0) or 0)
-        physical_row_count = max(1, len(table.rows) - start_row)
-        total_table_height_in = emu_to_inches(shape.height)
-        fixed_pre_start_height_in = self._table_rows_height_in(table, 0, start_row)
-        body_height_in = max(0.01, total_table_height_in - fixed_pre_start_height_in)
-        shrink_underfilled = len(row_heights_in) < physical_row_count
-        allocated = self._allocate_table_row_heights(
-            row_heights_in,
-            physical_row_count,
-            body_height_in,
-            shrink_underfilled=shrink_underfilled,
-        )
+        original_row_count = len(table.rows)
+        used_count = len(active_row_heights_in)
 
-        for offset, row_height_in in enumerate(allocated):
+        for offset, row_height_in in enumerate(active_row_heights_in):
             row_index = start_row + offset
-            if row_index >= len(table.rows):
+            if row_index >= original_row_count:
                 break
             table.rows[row_index].height = int(round(row_height_in * 914400))
             for column_index in range(len(table.columns)):
                 cell = table.cell(row_index, column_index)
                 self._set_cell_font_size(cell, font_size_pt)
 
-        if shrink_underfilled:
-            actual_table_height_in = fixed_pre_start_height_in + sum(allocated)
-            shape.height = int(round(max(0.01, actual_table_height_in) * 914400))
+        self._trim_table_rows(table, keep_row_count=start_row + used_count)
 
-    def _allocate_table_row_heights(
-        self,
-        used_row_heights_in: list[float],
-        physical_row_count: int,
-        fixed_height_in: float,
-        *,
-        shrink_underfilled: bool = False,
-    ) -> list[float]:
-        used_count = min(len(used_row_heights_in), physical_row_count)
-        blank_count = max(0, physical_row_count - used_count)
-        if shrink_underfilled:
-            blank_height_in = 0.0
-        elif used_count:
-            blank_height_in = 0.01
-        else:
-            blank_height_in = fixed_height_in / physical_row_count
-        available_for_used = max(
-            0.0,
-            fixed_height_in - (blank_count * blank_height_in),
-        )
+        if float(target_table_height_in) > 0:
+            safety_margin_in = 0.04
+            max_allowed_height_in = max(0.01, template_table_height_in - safety_margin_in)
+            final_height_in = min(float(target_table_height_in), max_allowed_height_in)
+            shape.height = int(round(max(0.01, final_height_in) * 914400))
 
-        if used_count == 0:
-            return [blank_height_in for _ in range(physical_row_count)]
-
-        used = [max(0.01, float(height)) for height in used_row_heights_in[:used_count]]
-        if shrink_underfilled:
-            return used + [blank_height_in for _ in range(blank_count)]
-
-        required = sum(used)
-        if required <= 0:
-            allocated_used = [available_for_used / used_count for _ in range(used_count)]
-        elif required <= available_for_used:
-            extra = (available_for_used - required) / used_count
-            allocated_used = [height + extra for height in used]
-        else:
-            scale = available_for_used / required
-            allocated_used = [max(0.01, height * scale) for height in used]
-
-        return allocated_used + [blank_height_in for _ in range(blank_count)]
+    def _trim_table_rows(self, table: Any, *, keep_row_count: int) -> None:
+        tbl = getattr(table, "_tbl", None)
+        if tbl is None:
+            return
+        keep_count = max(0, int(keep_row_count))
+        row_elements = list(getattr(tbl, "tr_lst", []))
+        for row_element in reversed(row_elements[keep_count:]):
+            tbl.remove(row_element)
 
     def _set_cell_font_size(self, cell: Any, font_size_pt: float) -> None:
         for paragraph in cell.text_frame.paragraphs:
+            for run in paragraph.runs:
+                run.font.size = Pt(font_size_pt)
+
+    def _set_text_shape_font_size(self, shape: Any, font_size_pt: float) -> None:
+        if not getattr(shape, "has_text_frame", False):
+            return
+        for paragraph in shape.text_frame.paragraphs:
             for run in paragraph.runs:
                 run.font.size = Pt(font_size_pt)
 

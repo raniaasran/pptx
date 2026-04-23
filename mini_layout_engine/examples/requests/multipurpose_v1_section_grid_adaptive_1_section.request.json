@@ -1,0 +1,21 @@
+[
+  {
+    "request_id": "multipurpose_v1_section_grid_adaptive_1_section",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Adaptive Mode A",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Single Focus",
+              "description": "One block should use larger 2x1 geometry."
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

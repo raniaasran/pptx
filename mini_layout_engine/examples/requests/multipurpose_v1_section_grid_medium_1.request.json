@@ -1,0 +1,19 @@
+{
+  "request_id": "multipurpose_v1_section_grid_medium_1",
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "section_grid",
+      "content": {
+        "title": "Section Grid MEDIUM - 1 Sections",
+        "sections": [
+          {
+            "label": "01",
+            "title": "Workstream 01",
+            "description": "Medium detail for stream 01 with clear actions and expected outcomes."
+          }
+        ]
+      }
+    }
+  ]
+}

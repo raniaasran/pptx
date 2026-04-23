@@ -1,0 +1,26 @@
+[
+  {
+    "request_id": "multipurpose_v1_section_grid_adaptive_2_long_continuation",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Adaptive Mode A Stress",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Governance and Risk Alignment",
+              "description": "Cross-functional governance updates require weekly alignment across operations, analytics, legal, and customer support to keep dependencies synchronized and avoid policy drift during phased rollout."
+            },
+            {
+              "label": "02",
+              "title": "Execution and Stabilization",
+              "description": "Execution stability depends on coordinated release windows, predictable data refresh cycles, and rapid issue triage ownership so operational teams can maintain service levels during high-variance demand periods."
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

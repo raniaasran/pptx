@@ -1,0 +1,36 @@
+[
+  {
+    "request_id": "multipurpose_v1_section_grid_adaptive_4_sections",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Adaptive Mode B",
+          "sections": [
+            {
+              "label": "01",
+              "title": "Research",
+              "description": "Collect inputs"
+            },
+            {
+              "label": "02",
+              "title": "Design",
+              "description": "Shape draft"
+            },
+            {
+              "label": "03",
+              "title": "Review",
+              "description": "Validate quality"
+            },
+            {
+              "label": "04",
+              "title": "Deliver",
+              "description": "Publish output"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
