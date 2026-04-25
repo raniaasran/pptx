@@ -1,0 +1,27 @@
+{
+  "layout_id": "large_media_title_caption",
+  "description": "Use for a short title, one large central media area, and a compact caption below.",
+  "continuation": false,
+  "required_fields": [
+    "title",
+    "media",
+    "caption"
+  ],
+  "optional_fields": [
+    "media_url"
+  ],
+  "field_types": {
+    "title": "string",
+    "media": "image_ref",
+    "caption": "string",
+    "media_url": "string"
+  },
+  "constraints": {},
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "large_media_title_caption.base"
+}

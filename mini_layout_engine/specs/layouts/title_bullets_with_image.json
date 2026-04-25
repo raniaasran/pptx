@@ -1,0 +1,28 @@
+{
+  "layout_id": "title_bullets_with_image",
+  "description": "Use for slides with a strong title, an intro line, key bullet points, a short closing line, and one supporting image area.",
+  "continuation": false,
+  "required_fields": [
+    "title",
+    "intro_text",
+    "bullet_items",
+    "closing_text",
+    "image"
+  ],
+  "optional_fields": [],
+  "field_types": {
+    "title": "string",
+    "intro_text": "string",
+    "bullet_items": "bullet_list",
+    "closing_text": "string",
+    "image": "image_ref"
+  },
+  "constraints": {},
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "title_bullets_with_image.base"
+}

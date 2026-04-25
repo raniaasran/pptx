@@ -96,6 +96,42 @@
           "name": "Google Shape;1264;p48"
         }
       }
+    },
+    "title_bullets_with_image": {
+      "pptx_layout_name": "title_bullets_with_image",
+      "template_slide_index": 7,
+      "placeholders": {
+        "title": {
+          "name": "Google Shape;1324;p51"
+        },
+        "body": {
+          "name": "Google Shape;1325;p51",
+          "contains": [
+            "intro_text",
+            "bullet_items",
+            "closing_text"
+          ]
+        },
+        "image": {
+          "name": "Google Shape;1327;p51"
+        }
+      }
+    },
+    "large_media_title_caption": {
+      "pptx_layout_name": "large_media_title_caption",
+      "template_slide_index": 38,
+      "placeholders": {
+        "title": {
+          "name": "Title 1"
+        },
+        "media": {
+          "name": "Picture 4",
+          "fit_mode": "contain"
+        },
+        "caption": {
+          "name": "Text Placeholder 2"
+        }
+      }
     }
   }
 }

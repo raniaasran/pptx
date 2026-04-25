@@ -1,0 +1,17 @@
+[
+  {
+    "request_id": "multipurpose_v1_large_media_title_caption",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "large_media_title_caption",
+        "content": {
+          "title": "Large Media Preview",
+          "media": "mini_layout_engine/examples/media/ai_image.png",
+          "caption": "Single large media block with a short supporting caption.",
+          "media_url": "https://example.com/media.mp4"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,275 @@
+[
+  {
+    "request_id": "multipurpose_v1_full_family_multitest",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "cover_title",
+        "content": {
+          "title": "Multipurpose V1 Full Family Multi-Test",
+          "subtitle": "All layouts + media aspect checks + continuation stress"
+        }
+      },
+      {
+        "layout_id": "hero_statement",
+        "content": {
+          "title": "Regression test deck for mapping and rendering stability",
+          "description": "This slide validates hero typography and baseline text replacement behavior before image and continuation stress cases."
+        }
+      },
+      {
+        "layout_id": "large_media_title_caption",
+        "content": {
+          "title": "Large Media - Wide Source",
+          "media": "mini_layout_engine/examples/media/wide.png",
+          "caption": "Contain-fit check with a wide image inside the fixed media placeholder.",
+          "media_url": "https://example.com/wide.mp4"
+        }
+      },
+      {
+        "layout_id": "large_media_title_caption",
+        "content": {
+          "title": "Large Media - Earth Source",
+          "media": "mini_layout_engine/examples/media/earth.png",
+          "caption": "Contain-fit check with a differently sized source image.",
+          "media_url": "https://example.com/earth.mp4"
+        }
+      },
+      {
+        "layout_id": "title_bullets_with_image",
+        "content": {
+          "title": "Title + Bullets + Image",
+          "intro_text": "This validates composite body rendering and real PowerPoint bullets.",
+          "bullet_items": [
+            "Intro text should appear as a normal paragraph.",
+            "Each bullet item should be rendered as a real bullet paragraph.",
+            "Closing text should appear as a normal paragraph after bullets."
+          ],
+          "closing_text": "Image replacement should target the mapped shape without changing layout coordinates.",
+          "image": "mini_layout_engine/examples/media/ai_image.png"
+        }
+      },
+      {
+        "layout_id": "info_table",
+        "content": {
+          "title": "Info Table Continuation Stress",
+          "subtitle": "Many rows to force pagination/continuation behavior",
+          "rows": [
+            {
+              "label": "R01",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R02",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R03",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R04",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R05",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R06",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R07",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R08",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R09",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R10",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R11",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R12",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R13",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R14",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R15",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R16",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R17",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R18",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R19",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R20",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R21",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R22",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R23",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R24",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R25",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R26",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R27",
+              "description": "Baseline row for pagination test."
+            },
+            {
+              "label": "R28",
+              "description": "Baseline row for pagination test."
+            }
+          ],
+          "footer_notes": [
+            "Auto-generated continuation expected.",
+            "Keep style and alignment stable across pages."
+          ]
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Section Grid - 6 Sections (3x2 target)",
+          "sections": [
+            {
+              "label": "A1",
+              "title": "Scope",
+              "description": "Define final boundaries."
+            },
+            {
+              "label": "A2",
+              "title": "Design",
+              "description": "Freeze visual system."
+            },
+            {
+              "label": "A3",
+              "title": "Build",
+              "description": "Implement prioritized tasks."
+            },
+            {
+              "label": "A4",
+              "title": "Verify",
+              "description": "Execute targeted regression tests."
+            },
+            {
+              "label": "A5",
+              "title": "Rollout",
+              "description": "Deploy with checkpoints."
+            },
+            {
+              "label": "A6",
+              "title": "Operate",
+              "description": "Monitor outcomes and iterate."
+            }
+          ]
+        }
+      },
+      {
+        "layout_id": "section_grid",
+        "content": {
+          "title": "Section Grid Continuation Stress",
+          "sections": [
+            {
+              "label": "B1",
+              "title": "Discovery",
+              "description": "Collect detailed requirements and constraints from all stakeholders for consistent implementation."
+            },
+            {
+              "label": "B2",
+              "title": "Architecture",
+              "description": "Lock data flow, dependency boundaries, and error-handling strategy before implementation starts."
+            },
+            {
+              "label": "B3",
+              "title": "Implementation",
+              "description": "Deliver functionality in thin, verifiable increments with strict ownership and clear checkpoints."
+            },
+            {
+              "label": "B4",
+              "title": "Quality",
+              "description": "Run focused regression suites and visual checks to prevent behavior drift in existing layouts."
+            },
+            {
+              "label": "B5",
+              "title": "Performance",
+              "description": "Measure heavy cases and ensure output generation remains stable as content density increases."
+            },
+            {
+              "label": "B6",
+              "title": "Security",
+              "description": "Review input and output handling with minimal trust assumptions and safe defaults."
+            },
+            {
+              "label": "B7",
+              "title": "Documentation",
+              "description": "Capture exact mapping and usage notes so future layout additions follow predictable patterns."
+            },
+            {
+              "label": "B8",
+              "title": "Operations",
+              "description": "Define monitoring, alerting, and triage playbooks for real-world post-release support."
+            },
+            {
+              "label": "B9",
+              "title": "Training",
+              "description": "Prepare concise enablement content for editors, reviewers, and delivery teams."
+            },
+            {
+              "label": "B10",
+              "title": "Governance",
+              "description": "Track open risks, owners, and deadlines in a shared review cadence until closure."
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

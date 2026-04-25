@@ -8,6 +8,7 @@ from typing import Any, Iterable, Mapping
 
 from mini_layout_engine.engine.planning_engine import PlanningEngine
 from mini_layout_engine.registry.family_registry import FamilyRegistry
+from mini_layout_engine.registry.layout_registry import LayoutRegistry
 from mini_layout_engine.rendering.fit_utils import (
     emu_to_inches,
     estimate_chars_per_line,
@@ -16,7 +17,9 @@ from mini_layout_engine.rendering.fit_utils import (
     estimate_text_height_in,
     find_shrink_to_fit_font,
 )
+from mini_layout_engine.rendering.image_fit import prepare_image_for_fit_mode
 from mini_layout_engine.rendering.pptx_helper import MiniPptxHelper
+from pptx.oxml.xmlchemy import OxmlElement
 from pptx.oxml.ns import qn
 from pptx.util import Pt
 
@@ -141,6 +144,9 @@ class MiniPptxRenderer:
         self.family_registry = FamilyRegistry.from_specs_dir(
             package_root / "specs" / "families"
         )
+        self.layout_registry = LayoutRegistry.from_specs_dir(
+            package_root / "specs" / "layouts"
+        )
 
     def render_from_request(
         self,
@@ -250,6 +256,7 @@ class MiniPptxRenderer:
                 target_index,
                 content,
                 mapped_layout=mapped_layout,
+                layout_id=layout_id,
             )
             if layout_id == "cover_title":
                 self._apply_cover_title_shrink_to_fit(
@@ -265,6 +272,14 @@ class MiniPptxRenderer:
                     content=content,
                     mapped_layout=mapped_layout,
                 )
+            if layout_id == "title_bullets_with_image":
+                self._apply_placeholder_text_bold(
+                    helper,
+                    target_index,
+                    mapped_layout=mapped_layout,
+                    placeholder_key="title",
+                    is_bold=True,
+                )
 
             image_ref = self._extract_image_ref(content)
             if image_ref:
@@ -274,10 +289,20 @@ class MiniPptxRenderer:
                         f"Image '{image_ref}' not found for layout '{layout_id}'; kept template image."
                     )
                 else:
-                    picture_shapes = helper.sort_shapes_reading_order(helper.picture_shapes(target_index))
-                    if picture_shapes:
-                        helper.replace_picture_shape(picture_shapes[0], image_path)
-                    else:
+                    replaced = self._replace_image_for_mapped_placeholder(
+                        helper,
+                        target_index,
+                        mapped_layout=mapped_layout,
+                        image_path=image_path,
+                    )
+                    if not replaced:
+                        picture_shapes = helper.sort_shapes_reading_order(
+                            helper.picture_shapes(target_index)
+                        )
+                        if picture_shapes:
+                            helper.replace_picture_shape(picture_shapes[0], image_path)
+                            replaced = True
+                    if not replaced:
                         warnings.append(
                             f"No picture shape available for image '{image_ref}' in layout '{layout_id}'."
                         )
@@ -397,6 +422,31 @@ class MiniPptxRenderer:
             isinstance(rows_mapping, Mapping)
             and str(rows_mapping.get("type", "")).strip() == "table"
         )
+
+    def _apply_placeholder_text_bold(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        *,
+        mapped_layout: Mapping[str, Any],
+        placeholder_key: str,
+        is_bold: bool,
+    ) -> None:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return
+        text_mapping = placeholders.get(str(placeholder_key))
+        if not isinstance(text_mapping, Mapping):
+            return
+
+        shape_name = str(text_mapping.get("name", "")).strip()
+        if not shape_name:
+            return
+        shape = helper.get_shape_by_name(slide_index, shape_name)
+        if shape is None or not getattr(shape, "has_text_frame", False):
+            return
+
+        self._set_text_shape_bold(shape, is_bold)
 
     def _apply_hero_statement_shrink_to_fit(
         self,
@@ -532,6 +582,7 @@ class MiniPptxRenderer:
                 target_index,
                 content,
                 mapped_layout=mapped_layout,
+                layout_id="section_grid",
             )
             warnings.append(
                 "section_grid adaptive mode unavailable; rendered with static repeated-group mapping."
@@ -1427,6 +1478,7 @@ class MiniPptxRenderer:
                 target_index,
                 page_content,
                 mapped_layout=mapped_layout,
+                layout_id="info_table",
             )
             self._apply_table_page_geometry(
                 helper,
@@ -1772,6 +1824,13 @@ class MiniPptxRenderer:
             for run in paragraph.runs:
                 run.font.size = Pt(font_size_pt)
 
+    def _set_text_shape_bold(self, shape: Any, is_bold: bool) -> None:
+        if not getattr(shape, "has_text_frame", False):
+            return
+        for paragraph in shape.text_frame.paragraphs:
+            for run in paragraph.runs:
+                run.font.bold = bool(is_bold)
+
     def _select_content_source(
         self,
         slide_entry: Mapping[str, Any],
@@ -1796,6 +1855,7 @@ class MiniPptxRenderer:
         content: Mapping[str, Any],
         *,
         mapped_layout: Mapping[str, Any] | None = None,
+        layout_id: str = "",
     ) -> None:
         placeholders = {}
         if isinstance(mapped_layout, Mapping):
@@ -1808,6 +1868,7 @@ class MiniPptxRenderer:
             slide_index,
             content,
             placeholders,
+            layout_id=layout_id,
         ):
             return
 
@@ -1846,10 +1907,21 @@ class MiniPptxRenderer:
         slide_index: int,
         content: Mapping[str, Any],
         placeholders: Mapping[str, Any],
+        *,
+        layout_id: str = "",
     ) -> bool:
         rendered_any = False
         for field, mapping in placeholders.items():
             if not isinstance(mapping, Mapping):
+                continue
+            if "contains" in mapping:
+                rendered_any = self._render_composite_text_placeholder(
+                    helper,
+                    slide_index,
+                    mapping,
+                    content,
+                    layout_id=layout_id,
+                ) or rendered_any
                 continue
             field_name = str(field)
             value = content.get(field_name)
@@ -1889,6 +1961,100 @@ class MiniPptxRenderer:
             helper.replace_text_preserve_format(shape, self._format_placeholder_value(value))
             rendered_any = True
         return rendered_any
+
+    def _render_composite_text_placeholder(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        mapping: Mapping[str, Any],
+        content: Mapping[str, Any],
+        *,
+        layout_id: str = "",
+    ) -> bool:
+        contains = mapping.get("contains")
+        if not isinstance(contains, list):
+            return False
+
+        shape_name = str(mapping.get("name", "")).strip()
+        shape = helper.get_shape_by_name(slide_index, shape_name)
+        if shape is None or not getattr(shape, "has_text_frame", False):
+            return False
+
+        text_frame = shape.text_frame
+        text_frame.clear()
+        wrote_any = False
+
+        for field in contains:
+            field_name = str(field or "").strip()
+            if not field_name:
+                continue
+            value = content.get(field_name)
+            if value is None:
+                continue
+
+            should_bullet = isinstance(value, list) or self._is_bullet_field_type(
+                layout_id=layout_id,
+                field_name=field_name,
+            )
+            if should_bullet:
+                for item in self._as_list(value):
+                    paragraph = self._next_text_frame_paragraph(text_frame, wrote_any)
+                    self._set_paragraph_text(paragraph, item)
+                    self._set_paragraph_bullet(paragraph, enabled=True)
+                    wrote_any = True
+                continue
+
+            text = self._as_text(value)
+            if not text:
+                continue
+            paragraph = self._next_text_frame_paragraph(text_frame, wrote_any)
+            self._set_paragraph_text(paragraph, text)
+            self._set_paragraph_bullet(paragraph, enabled=False)
+            wrote_any = True
+
+        if not wrote_any:
+            first = text_frame.paragraphs[0]
+            self._set_paragraph_text(first, "")
+            self._set_paragraph_bullet(first, enabled=False)
+        return wrote_any
+
+    def _is_bullet_field_type(self, *, layout_id: str, field_name: str) -> bool:
+        contract = self.layout_registry.get(layout_id)
+        if contract is None:
+            return False
+        return str(contract.field_types.get(str(field_name), "")).strip() == "bullet_list"
+
+    @staticmethod
+    def _next_text_frame_paragraph(text_frame: Any, wrote_any: bool):
+        if not wrote_any and text_frame.paragraphs:
+            paragraph = text_frame.paragraphs[0]
+        else:
+            paragraph = text_frame.add_paragraph()
+        return paragraph
+
+    def _set_paragraph_text(self, paragraph: Any, text: str) -> None:
+        text_value = str(text or "")
+        if paragraph.runs:
+            for run in paragraph.runs:
+                run.text = ""
+            paragraph.runs[0].text = text_value
+            return
+        paragraph.text = text_value
+
+    def _set_paragraph_bullet(self, paragraph: Any, *, enabled: bool) -> None:
+        p_pr = paragraph._p.get_or_add_pPr()
+        for child in list(p_pr):
+            local_name = str(child.tag).split("}")[-1]
+            if local_name in {"buNone", "buAutoNum", "buChar", "buBlip"}:
+                p_pr.remove(child)
+        if enabled:
+            paragraph.level = 0
+            bu_char = OxmlElement("a:buChar")
+            bu_char.set("char", "•")
+            p_pr.append(bu_char)
+        else:
+            bu_none = OxmlElement("a:buNone")
+            p_pr.append(bu_none)
 
     def _render_multi_shape_placeholder(
         self,
@@ -2017,10 +2183,55 @@ class MiniPptxRenderer:
 
         return blocks
 
+    def _replace_image_for_mapped_placeholder(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        *,
+        mapped_layout: Mapping[str, Any],
+        image_path: Path,
+    ) -> bool:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return False
+        image_mapping = placeholders.get("image")
+        if not isinstance(image_mapping, Mapping):
+            image_mapping = placeholders.get("media")
+        if not isinstance(image_mapping, Mapping):
+            return False
+
+        shape_name = str(image_mapping.get("name", "")).strip()
+        if not shape_name:
+            return False
+
+        shape = helper.get_shape_by_name(slide_index, shape_name)
+        if shape is None:
+            return False
+
+        fit_mode = str(image_mapping.get("fit_mode", "stretch")).strip().lower()
+        final_image_path = image_path
+        if fit_mode and fit_mode != "stretch":
+            try:
+                prepared_path = prepare_image_for_fit_mode(
+                    str(image_path),
+                    target_width_emu=int(shape.width),
+                    target_height_emu=int(shape.height),
+                    fit_mode=fit_mode,
+                )
+                candidate = Path(prepared_path)
+                if candidate.is_file():
+                    final_image_path = candidate
+            except Exception:
+                final_image_path = image_path
+
+        return bool(helper.replace_picture_shape(shape, final_image_path))
+
     def _extract_image_ref(self, content: Mapping[str, Any]) -> str | None:
-        image_value = content.get("image")
-        image_text = self._as_text(image_value)
-        return image_text or None
+        image_text = self._as_text(content.get("image"))
+        if image_text:
+            return image_text
+        media_text = self._as_text(content.get("media"))
+        return media_text or None
 
     def _resolve_image_path(self, image_ref: str) -> Path | None:
         ref = str(image_ref).strip()

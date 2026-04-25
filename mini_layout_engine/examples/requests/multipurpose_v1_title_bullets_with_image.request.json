@@ -1,0 +1,22 @@
+[
+  {
+    "request_id": "multipurpose_v1_title_bullets_with_image",
+    "design_family_id": "multipurpose_v1",
+    "slides": [
+      {
+        "layout_id": "title_bullets_with_image",
+        "content": {
+          "title": "Why Clear Lists Work",
+          "intro_text": "Well-structured points make complex ideas easier to follow.",
+          "bullet_items": [
+            "They provide quick scanning for the audience.",
+            "They reduce cognitive load in dense explanations.",
+            "They keep the presenter focused on the main thread."
+          ],
+          "closing_text": "A concise recap helps the key message stick after the slide changes.",
+          "image": "mini_layout_engine/examples/media/ai_image.png"
+        }
+      }
+    ]
+  }
+]
