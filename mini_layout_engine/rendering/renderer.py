@@ -15,6 +15,7 @@ from mini_layout_engine.rendering.fit_utils import (
     estimate_line_height_in,
     estimate_multiline_wrapped_lines,
     estimate_text_height_in,
+    find_largest_fitting_font,
     find_shrink_to_fit_font,
     measure_text_box,
 )
@@ -306,6 +307,29 @@ class MiniPptxRenderer:
                     content=content,
                     mapped_layout=mapped_layout,
                 )
+            if layout_id == "two_column_long_text":
+                self._apply_mapped_title_shrink_to_fit(
+                    helper,
+                    target_index,
+                    content=content,
+                    mapped_layout=mapped_layout,
+                    fallback_template_pt=40.0,
+                    min_font_pt=12.0,
+                )
+                self._apply_two_column_long_text_paragraph_grow_to_fit(
+                    helper,
+                    target_index,
+                    mapped_layout=mapped_layout,
+                )
+            if layout_id == "large_media_title_caption":
+                self._apply_mapped_title_shrink_to_fit(
+                    helper,
+                    target_index,
+                    content=content,
+                    mapped_layout=mapped_layout,
+                    fallback_template_pt=40.0,
+                    min_font_pt=12.0,
+                )
 
             image_ref = self._extract_image_ref(content)
             if image_ref:
@@ -448,6 +472,64 @@ class MiniPptxRenderer:
             isinstance(rows_mapping, Mapping)
             and str(rows_mapping.get("type", "")).strip() == "table"
         )
+
+    def _apply_mapped_title_shrink_to_fit(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        *,
+        content: Mapping[str, Any],
+        mapped_layout: Mapping[str, Any],
+        fallback_template_pt: float,
+        min_font_pt: float = 12.0,
+    ) -> None:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return
+        title_mapping = placeholders.get("title")
+        if not isinstance(title_mapping, Mapping):
+            return
+
+        title_shape_name = str(title_mapping.get("name", "")).strip()
+        if not title_shape_name:
+            return
+        title_shape = helper.get_shape_by_name(slide_index, title_shape_name)
+        if title_shape is None or not getattr(title_shape, "has_text_frame", False):
+            return
+
+        title_text = str(content.get("title", "") or "").strip()
+        if not title_text:
+            return
+
+        text_frame = title_shape.text_frame
+        margin_left = int(getattr(text_frame, "margin_left", 0) or 0)
+        margin_right = int(getattr(text_frame, "margin_right", 0) or 0)
+        margin_top = int(getattr(text_frame, "margin_top", 0) or 0)
+        margin_bottom = int(getattr(text_frame, "margin_bottom", 0) or 0)
+        width_emu = int(title_shape.width) - margin_left - margin_right
+        height_emu = int(title_shape.height) - margin_top - margin_bottom
+        fit_width_in = max(0.1, emu_to_inches(width_emu))
+        fit_height_in = max(0.1, emu_to_inches(height_emu))
+
+        template_font_pt = self._shape_template_font_pt(
+            title_shape,
+            fallback=float(fallback_template_pt),
+        )
+        fit = find_shrink_to_fit_font(
+            title_text,
+            width_in=fit_width_in,
+            height_in=fit_height_in,
+            template_font_pt=float(template_font_pt),
+            min_font_pt=float(min_font_pt),
+            step_pt=0.5,
+            line_spacing=1.0,
+            vertical_padding_in=0.02,
+        )
+        if fit is None:
+            self._set_text_shape_font_size(title_shape, float(min_font_pt))
+            return
+        if float(fit.font_size_pt) < float(template_font_pt):
+            self._set_text_shape_font_size(title_shape, float(fit.font_size_pt))
 
     def _apply_placeholder_text_bold(
         self,
@@ -612,6 +694,66 @@ class MiniPptxRenderer:
             pass
         return float(fallback)
 
+    def _apply_two_column_long_text_paragraph_grow_to_fit(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        *,
+        mapped_layout: Mapping[str, Any],
+    ) -> None:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return
+        for field_name in ("left_text", "right_text"):
+            mapping = placeholders.get(field_name)
+            if not isinstance(mapping, Mapping):
+                continue
+            shape_name = str(mapping.get("name", "")).strip()
+            if not shape_name:
+                continue
+            shape = helper.get_shape_by_name(slide_index, shape_name)
+            if shape is None or not getattr(shape, "has_text_frame", False):
+                continue
+            self._grow_text_shape_font_size_if_underfilled(shape)
+
+    def _grow_text_shape_font_size_if_underfilled(self, shape: Any) -> None:
+        if not getattr(shape, "has_text_frame", False):
+            return
+        text_frame = shape.text_frame
+        text = str(getattr(text_frame, "text", "") or "").strip()
+        if not text:
+            return
+
+        margin_left = int(getattr(text_frame, "margin_left", 0) or 0)
+        margin_right = int(getattr(text_frame, "margin_right", 0) or 0)
+        margin_top = int(getattr(text_frame, "margin_top", 0) or 0)
+        margin_bottom = int(getattr(text_frame, "margin_bottom", 0) or 0)
+        width_emu = int(getattr(shape, "width", 0)) - margin_left - margin_right
+        height_emu = int(getattr(shape, "height", 0)) - margin_top - margin_bottom
+        width_in = max(0.1, emu_to_inches(width_emu))
+        height_in = max(0.1, emu_to_inches(height_emu))
+
+        baseline_font_pt = self._shape_template_font_pt(shape, fallback=14.0)
+
+        max_font_pt = min(
+            28.0,
+            max(float(baseline_font_pt) + 6.0, float(baseline_font_pt) * 1.45),
+        )
+        fit = find_largest_fitting_font(
+            text,
+            width_in=width_in,
+            height_in=height_in,
+            min_font_pt=float(baseline_font_pt),
+            max_font_pt=float(max_font_pt),
+            step_pt=0.5,
+            line_spacing=1.0,
+            vertical_padding_in=0.02,
+        )
+        if fit is None:
+            return
+        if float(fit.font_size_pt) > float(baseline_font_pt):
+            self._set_text_shape_font_size(shape, float(fit.font_size_pt))
+
     def _supports_adaptive_tabular_data_summary(
         self,
         layout_id: str,
@@ -645,13 +787,14 @@ class MiniPptxRenderer:
         if not isinstance(table_mapping, Mapping):
             return 0
 
-        rows = [
+        table_rows = [
             dict(row)
             for row in content.get("table", [])
             if isinstance(row, Mapping)
         ]
+        header_row, data_rows = self._split_tabular_header_and_data_rows(table_rows)
         active_columns = self._resolve_tabular_active_columns(
-            rows=rows,
+            rows=table_rows,
             table_mapping=table_mapping,
         )
         if not active_columns:
@@ -667,23 +810,42 @@ class MiniPptxRenderer:
                 mapped_layout=mapped_layout,
                 layout_id="tabular_data_summary",
             )
+            self._apply_mapped_title_shrink_to_fit(
+                helper,
+                target_index,
+                content=content,
+                mapped_layout=mapped_layout,
+                fallback_template_pt=38.0,
+                min_font_pt=12.0,
+            )
             return 1
 
         table_mapping_effective = dict(table_mapping)
         table_mapping_effective["columns"] = dict(active_columns)
+        # Keep row 0 reserved for repeated header on every continuation page.
+        table_mapping_effective["start_row"] = 1
+        mapped_layout_effective = dict(mapped_layout)
+        placeholders_effective = dict(placeholders)
+        placeholders_effective["table"] = table_mapping_effective
+        mapped_layout_effective["placeholders"] = placeholders_effective
         table_plan = self._build_table_pagination_plan(
             helper,
             prototype_index,
             table_mapping_effective,
-            rows,
+            data_rows,
             warnings=warnings,
         )
         pages = table_plan["pages"]
         if not pages:
-            pages = [{"rows": [], "row_heights_in": []}]
+            pages = [{"rows": [], "active_row_heights_in": [], "target_table_height_in": 0.0}]
+
+        template_shape = helper.get_shape_by_name(
+            prototype_index, str(table_mapping.get("name", ""))
+        )
+        template_table_height_emu = int(getattr(template_shape, "height", 0) or 0)
 
         rendered = 0
-        for page in pages:
+        for page_index, page in enumerate(pages):
             helper.duplicate_slide(prototype_index)
             target_index = helper.slide_count() - 1
             page_content = dict(content)
@@ -692,8 +854,29 @@ class MiniPptxRenderer:
                 helper,
                 target_index,
                 page_content,
-                mapped_layout=mapped_layout,
+                mapped_layout=mapped_layout_effective,
                 layout_id="tabular_data_summary",
+            )
+            self._apply_mapped_title_shrink_to_fit(
+                helper,
+                target_index,
+                content=page_content,
+                mapped_layout=mapped_layout_effective,
+                fallback_template_pt=38.0,
+                min_font_pt=12.0,
+            )
+            self._write_tabular_header_row(
+                helper,
+                target_index,
+                table_mapping_effective,
+                header_row=header_row,
+                active_columns=active_columns,
+            )
+            self._apply_tabular_active_columns_geometry(
+                helper,
+                target_index,
+                table_mapping_effective,
+                active_columns=active_columns,
             )
             self._apply_table_page_geometry(
                 helper,
@@ -703,8 +886,189 @@ class MiniPptxRenderer:
                 float(table_plan["font_size_pt"]),
                 target_table_height_in=float(page.get("target_table_height_in", 0.0)),
             )
+            if page_index < len(pages) - 1 and template_table_height_emu > 0:
+                page_shape = helper.get_shape_by_name(
+                    target_index, str(table_mapping_effective.get("name", ""))
+                )
+                if page_shape is not None:
+                    page_shape.height = int(template_table_height_emu)
+                self._expand_tabular_rows_to_shape_height(
+                    helper,
+                    target_index,
+                    table_mapping_effective,
+                )
             rendered += 1
         return rendered
+
+    @staticmethod
+    def _split_tabular_header_and_data_rows(
+        rows: list[dict[str, Any]],
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        if not rows:
+            return {}, []
+        header_row = dict(rows[0]) if isinstance(rows[0], Mapping) else {}
+        data_rows = [dict(row) for row in rows[1:] if isinstance(row, Mapping)]
+        return header_row, data_rows
+
+    def _write_tabular_header_row(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        table_mapping: Mapping[str, Any],
+        *,
+        header_row: Mapping[str, Any],
+        active_columns: Mapping[str, int],
+    ) -> None:
+        shape = helper.get_shape_by_name(slide_index, str(table_mapping.get("name", "")))
+        if shape is None or not getattr(shape, "has_table", False):
+            return
+        table = shape.table
+        if len(table.rows) <= 0:
+            return
+
+        active_column_indexes = {
+            int(column_index)
+            for column_index in active_columns.values()
+            if 0 <= int(column_index) < len(table.columns)
+        }
+        for field_name, column_index in active_columns.items():
+            idx = int(column_index)
+            if not (0 <= idx < len(table.columns)):
+                continue
+            table.cell(0, idx).text = self._format_placeholder_value(
+                header_row.get(str(field_name), "")
+            )
+
+        for idx in range(len(table.columns)):
+            if idx in active_column_indexes:
+                continue
+            table.cell(0, idx).text = ""
+
+    def _apply_tabular_active_columns_geometry(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        table_mapping: Mapping[str, Any],
+        *,
+        active_columns: Mapping[str, int],
+    ) -> None:
+        shape = helper.get_shape_by_name(slide_index, str(table_mapping.get("name", "")))
+        if shape is None or not getattr(shape, "has_table", False):
+            return
+        table = shape.table
+        if len(table.columns) <= 0:
+            return
+
+        active_indices = sorted(
+            {
+                int(column_index)
+                for column_index in active_columns.values()
+                if 0 <= int(column_index) < len(table.columns)
+            }
+        )
+        if not active_indices:
+            return
+
+        keep_count = int(max(active_indices)) + 1
+        keep_count = min(max(1, keep_count), len(table.columns))
+        # Preserve template visual span by using the original table grid width,
+        # not the graphic-frame width.
+        total_width = sum(int(column.width) for column in table.columns)
+        if total_width <= 0:
+            total_width = int(shape.width)
+        if total_width <= 0:
+            return
+
+        self._prune_table_to_column_count(table, keep_count=keep_count)
+        table = shape.table
+        if len(table.columns) <= 0:
+            return
+
+        current_widths = [int(column.width) for column in table.columns]
+        current_total = sum(current_widths)
+        if current_total <= 0:
+            base = total_width // len(table.columns)
+            remainder = total_width - (base * len(table.columns))
+            for idx, column in enumerate(table.columns):
+                width = base + (1 if idx < remainder else 0)
+                column.width = int(max(1, width))
+            return
+
+        assigned = 0
+        for idx, column in enumerate(table.columns):
+            if idx == len(table.columns) - 1:
+                width = max(1, total_width - assigned)
+            else:
+                raw = int(round((float(current_widths[idx]) / float(current_total)) * total_width))
+                rows_left_after = len(table.columns) - idx - 1
+                max_for_col = max(1, total_width - assigned - rows_left_after)
+                width = max(1, min(raw, max_for_col))
+                assigned += width
+            column.width = int(width)
+
+    def _prune_table_to_column_count(self, table: Any, *, keep_count: int) -> None:
+        tbl = getattr(table, "_tbl", None)
+        if tbl is None:
+            return
+        keep = max(1, int(keep_count))
+        grid = getattr(tbl, "tblGrid", None)
+        if grid is not None:
+            grid_cols = list(getattr(grid, "gridCol_lst", []))
+            for grid_col in reversed(grid_cols[keep:]):
+                grid.remove(grid_col)
+        for row in list(getattr(tbl, "tr_lst", [])):
+            cells = list(getattr(row, "tc_lst", []))
+            for cell in reversed(cells[keep:]):
+                row.remove(cell)
+
+    def _expand_tabular_rows_to_shape_height(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        table_mapping: Mapping[str, Any],
+    ) -> None:
+        shape = helper.get_shape_by_name(slide_index, str(table_mapping.get("name", "")))
+        if shape is None or not getattr(shape, "has_table", False):
+            return
+        table = shape.table
+        if len(table.rows) <= 0:
+            return
+
+        start_row = int(table_mapping.get("start_row", 0) or 0)
+        start_row = max(0, min(start_row, len(table.rows)))
+        if start_row >= len(table.rows):
+            return
+
+        fixed_height_emu = sum(int(table.rows[idx].height) for idx in range(start_row))
+        target_body_emu = int(shape.height) - fixed_height_emu
+        active_rows = [table.rows[idx] for idx in range(start_row, len(table.rows))]
+        if not active_rows or target_body_emu <= 0:
+            return
+
+        current_body_emu = sum(int(row.height) for row in active_rows)
+        if current_body_emu <= 0:
+            even = max(1, target_body_emu // len(active_rows))
+            remaining = int(target_body_emu)
+            for idx, row in enumerate(active_rows):
+                if idx == len(active_rows) - 1:
+                    row.height = int(max(1, remaining))
+                else:
+                    row.height = int(max(1, even))
+                    remaining -= int(row.height)
+            return
+
+        scale = float(target_body_emu) / float(current_body_emu)
+        assigned = 0
+        for idx, row in enumerate(active_rows):
+            if idx == len(active_rows) - 1:
+                row.height = int(max(1, target_body_emu - assigned))
+                continue
+            rows_left_after = len(active_rows) - idx - 1
+            raw = int(round(float(row.height) * scale))
+            max_for_row = max(1, target_body_emu - assigned - rows_left_after)
+            height_emu = max(1, min(raw, max_for_row))
+            row.height = int(height_emu)
+            assigned += int(height_emu)
 
     def _resolve_tabular_active_columns(
         self,
@@ -828,6 +1192,14 @@ class MiniPptxRenderer:
                 mapped_layout=mapped_layout,
                 layout_id="case_timeline",
             )
+            self._apply_mapped_title_shrink_to_fit(
+                helper,
+                target_index,
+                content=content,
+                mapped_layout=mapped_layout,
+                fallback_template_pt=40.0,
+                min_font_pt=12.0,
+            )
             warnings.append("case_timeline missing item_prototypes; rendered static slide.")
             return 1
 
@@ -860,6 +1232,14 @@ class MiniPptxRenderer:
                 content,
                 mapped_layout=mapped_layout,
                 layout_id="case_timeline",
+            )
+            self._apply_mapped_title_shrink_to_fit(
+                helper,
+                target_index,
+                content=content,
+                mapped_layout=mapped_layout,
+                fallback_template_pt=40.0,
+                min_font_pt=12.0,
             )
             warnings.append("case_timeline has invalid item_prototypes; rendered static slide.")
             return 1
@@ -910,6 +1290,14 @@ class MiniPptxRenderer:
                 title_shape = helper.get_shape_by_name(target_index, title_shape_name)
                 if title_shape is not None:
                     helper.replace_text_preserve_format(title_shape, title_text)
+            self._apply_mapped_title_shrink_to_fit(
+                helper,
+                target_index,
+                content=content,
+                mapped_layout=mapped_layout,
+                fallback_template_pt=40.0,
+                min_font_pt=12.0,
+            )
 
             assignments = self._assign_timeline_steps_to_slots(
                 steps=page_steps,
@@ -1308,6 +1696,14 @@ class MiniPptxRenderer:
                 mapped_layout=mapped_layout,
                 layout_id="section_grid",
             )
+            self._apply_mapped_title_shrink_to_fit(
+                helper,
+                target_index,
+                content=content,
+                mapped_layout=mapped_layout,
+                fallback_template_pt=40.0,
+                min_font_pt=12.0,
+            )
             warnings.append(
                 "section_grid adaptive mode unavailable; rendered with static repeated-group mapping."
             )
@@ -1346,6 +1742,14 @@ class MiniPptxRenderer:
                 mode=mode,
                 page_sections=page_sections,
                 forced_page_size=page.get("forced_page_size"),
+            )
+            self._apply_mapped_title_shrink_to_fit(
+                helper,
+                target_index,
+                content=content,
+                mapped_layout=mapped_layout,
+                fallback_template_pt=40.0,
+                min_font_pt=12.0,
             )
             rendered += 1
         return rendered
@@ -2246,6 +2650,14 @@ class MiniPptxRenderer:
                 page_content,
                 mapped_layout=mapped_layout,
                 layout_id="info_table",
+            )
+            self._apply_mapped_title_shrink_to_fit(
+                helper,
+                target_index,
+                content=page_content,
+                mapped_layout=mapped_layout,
+                fallback_template_pt=40.0,
+                min_font_pt=12.0,
             )
             self._apply_table_page_geometry(
                 helper,

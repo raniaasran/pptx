@@ -117,6 +117,21 @@
         }
       }
     },
+    "two_column_long_text": {
+      "pptx_layout_name": "two_column_long_text",
+      "template_slide_index": 6,
+      "placeholders": {
+        "title": {
+          "name": "Google Shape;1316;p50"
+        },
+        "left_text": {
+          "name": "Google Shape;1318;p50"
+        },
+        "right_text": {
+          "name": "Google Shape;1317;p50"
+        }
+      }
+    },
     "title_bullets_with_image": {
       "pptx_layout_name": "title_bullets_with_image",
       "template_slide_index": 7,

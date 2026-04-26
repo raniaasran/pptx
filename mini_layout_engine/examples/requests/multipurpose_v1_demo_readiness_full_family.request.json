@@ -1,0 +1,711 @@
+{
+  "request_id": "multipurpose_v1_demo_readiness_full_family",
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "cover_title",
+      "content": {
+        "title": "Multipurpose V1 Demo Readiness",
+        "subtitle": "Full-family regression deck with normal and continuation scenarios"
+      }
+    },
+    {
+      "layout_id": "hero_statement",
+      "content": {
+        "title": "This deck validates all registered multipurpose_v1 layouts end to end",
+        "description": "It combines everyday content with controlled stress cases so we can verify stability, continuation behavior, text fitting, image replacement, and table rendering in one run."
+      }
+    },
+    {
+      "layout_id": "two_column_long_text",
+      "content": {
+        "title": "TWO_COLUMN_LONG_TEXT_WITH_A_DELIBERATELY_LONG_TITLE_TO_VALIDATE_SHRINK_TO_FIT_WITHOUT_TOUCHING_THE_BODY_COLUMNS",
+        "left_text": "In the first column, we summarize the situation, constraints, and assumptions that shape the project scope. This helps align teams before execution and avoids ambiguity when trade-offs appear.",
+        "right_text": "In the second column, we outline the practical path forward, including dependencies, milestones, and review checkpoints. Keeping this narrative side by side makes complex context easier to scan quickly."
+      }
+    },
+    {
+      "layout_id": "large_media_title_caption",
+      "content": {
+        "title": "LARGE_MEDIA_TITLE_CAPTION_WITH_A_DELIBERATELY_LONG_TITLE_TO_VALIDATE_SAFE_SHRINK_WITHOUT_MOVING_THE_MEDIA_BOX",
+        "media": "wide.png",
+        "caption": "Wide reference image inside the central media placeholder using current fit behavior."
+      }
+    },
+    {
+      "layout_id": "title_bullets_with_image",
+      "content": {
+        "title": "Execution Plan With Visual Support",
+        "intro_text": "This slide combines context text, actionable bullets, and one supporting image.",
+        "bullet_items": [
+          "Confirm mappings and placeholders before production data.",
+          "Use continuation-capable layouts for long-form content.",
+          "Run one family-level regression before every demo."
+        ],
+        "closing_text": "The right-side image should remain embedded at the mapped placeholder geometry.",
+        "image": "ai_image.png"
+      }
+    },
+    {
+      "layout_id": "info_table",
+      "content": {
+        "title": "Info Table Normal Case With A Deliberately Long Title To Validate Safe Shrink-To-Fit Behavior In The Header Area",
+        "subtitle": "Short list fits on one slide",
+        "rows": [
+          {
+            "label": "Scope",
+            "description": "Finalize feature boundaries and ownership."
+          },
+          {
+            "label": "Design",
+            "description": "Approve layout mapping and placeholder contract."
+          },
+          {
+            "label": "Build",
+            "description": "Implement minimal isolated changes only."
+          },
+          {
+            "label": "Verify",
+            "description": "Run targeted render and regression checks."
+          },
+          {
+            "label": "Ship",
+            "description": "Prepare demo output and review notes."
+          }
+        ],
+        "footer_notes": [
+          "Normal table sample",
+          "No continuation expected"
+        ]
+      }
+    },
+    {
+      "layout_id": "info_table",
+      "content": {
+        "title": "INFO_TABLE_CONTINUATION_DEMO_WITH_AN_INTENTIONALLY_LONG_TITLE_TO_VERIFY_NO_OVERLAP_ACROSS_ALL_CONTINUATION_SLIDES",
+        "subtitle": "Long table should continue across multiple slides",
+        "rows": [
+          {
+            "label": "T01",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T02",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T03",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T04",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T05",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T06",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T07",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T08",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T09",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T10",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T11",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T12",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T13",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T14",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T15",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T16",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T17",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T18",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T19",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T20",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T21",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T22",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T23",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T24",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T25",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T26",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T27",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T28",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T29",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          },
+          {
+            "label": "T30",
+            "description": "Continuation test row with concise but realistic operational detail for status tracking."
+          }
+        ],
+        "footer_notes": [
+          "Continuation expected",
+          "Title should repeat on continuation slides"
+        ]
+      }
+    },
+    {
+      "layout_id": "section_grid",
+      "content": {
+        "title": "SECTION_GRID_STANDARD_PAGE_WITH_A_LONG_TITLE_TO_VERIFY_HEADER_SHRINK_TO_FIT_ABOVE_THE_GRID_CONTENT",
+        "sections": [
+          {
+            "label": "A1",
+            "title": "Discovery",
+            "description": "Gather requirements and constraints."
+          },
+          {
+            "label": "A2",
+            "title": "Design",
+            "description": "Lock visual and mapping rules."
+          },
+          {
+            "label": "A3",
+            "title": "Build",
+            "description": "Implement scoped renderer behavior."
+          },
+          {
+            "label": "A4",
+            "title": "QA",
+            "description": "Validate layout-by-layout output."
+          },
+          {
+            "label": "A5",
+            "title": "Docs",
+            "description": "Record commands and test evidence."
+          },
+          {
+            "label": "A6",
+            "title": "Release",
+            "description": "Finalize deck for stakeholder review."
+          }
+        ]
+      }
+    },
+    {
+      "layout_id": "section_grid",
+      "content": {
+        "title": "SECTION_GRID_CONTINUATION_DEMO_WITH_A_LONG_TITLE_TO_VALIDATE_SHRINK_TO_FIT_ON_ALL_GENERATED_CONTINUATION_PAGES",
+        "sections": [
+          {
+            "label": "B1",
+            "title": "Workstream 1",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B2",
+            "title": "Workstream 2",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B3",
+            "title": "Workstream 3",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B4",
+            "title": "Workstream 4",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B5",
+            "title": "Workstream 5",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B6",
+            "title": "Workstream 6",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B7",
+            "title": "Workstream 7",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B8",
+            "title": "Workstream 8",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B9",
+            "title": "Workstream 9",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          },
+          {
+            "label": "B10",
+            "title": "Workstream 10",
+            "description": "Expanded section description for continuation behavior and text fitting checks in grid slots."
+          }
+        ]
+      }
+    },
+    {
+      "layout_id": "case_timeline",
+      "content": {
+        "title": "CASE_TIMELINE_STANDARD_PAGE_WITH_A_LONG_TITLE_TO_VERIFY_HEADER_SHRINK_WITHOUT_CHANGING_MARKER_OR_LINE_LAYOUT",
+        "steps": [
+          {
+            "title": "Intake",
+            "description": "Receive the case scope and objective."
+          },
+          {
+            "title": "Assess",
+            "description": "Review current state and constraints."
+          },
+          {
+            "title": "Design",
+            "description": "Define the implementation approach."
+          },
+          {
+            "title": "Execute",
+            "description": "Build and verify core changes."
+          },
+          {
+            "title": "Close",
+            "description": "Deliver and document outcomes."
+          }
+        ]
+      }
+    },
+    {
+      "layout_id": "case_timeline",
+      "content": {
+        "title": "CASE_TIMELINE_CONTINUATION_DEMO_WITH_A_LONG_TITLE_TO_VALIDATE_HEADER_SHRINK_ON_EVERY_CONTINUATION_SLIDE",
+        "steps": [
+          {
+            "title": "Phase 1",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "01"
+          },
+          {
+            "title": "Phase 2",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "02"
+          },
+          {
+            "title": "Phase 3",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "03"
+          },
+          {
+            "title": "Phase 4",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "04"
+          },
+          {
+            "title": "Phase 5",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "05"
+          },
+          {
+            "title": "Phase 6",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "06"
+          },
+          {
+            "title": "Phase 7",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "07"
+          },
+          {
+            "title": "Phase 8",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "08"
+          },
+          {
+            "title": "Phase 9",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "09"
+          },
+          {
+            "title": "Phase 10",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "10"
+          },
+          {
+            "title": "Phase 11",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "11"
+          },
+          {
+            "title": "Phase 12",
+            "description": "Timeline continuation test with concise descriptive text to preserve legibility.",
+            "index": "12"
+          }
+        ]
+      }
+    },
+    {
+      "layout_id": "tabular_data_summary",
+      "content": {
+        "title": "Tabular Data Summary Two Columns With A Long Header Title To Confirm Proper Shrink Inside The Fixed Title Box",
+        "table": [
+          {
+            "col1": "Metric",
+            "col2": "Value"
+          },
+          {
+            "col1": "Scope",
+            "col2": "Core layouts only"
+          },
+          {
+            "col1": "Status",
+            "col2": "On track"
+          },
+          {
+            "col1": "Risk",
+            "col2": "Low"
+          },
+          {
+            "col1": "Owner",
+            "col2": "Layout team"
+          }
+        ]
+      }
+    },
+    {
+      "layout_id": "tabular_data_summary",
+      "content": {
+        "title": "Tabular Data Summary Three Columns Long Title Validation For Adaptive Table Slides Without Any Header Overlap",
+        "table": [
+          {
+            "col1": "Area",
+            "col2": "Owner",
+            "col3": "State"
+          },
+          {
+            "col1": "Mapping",
+            "col2": "Design",
+            "col3": "Done"
+          },
+          {
+            "col1": "Renderer",
+            "col2": "Engineering",
+            "col3": "Stable"
+          },
+          {
+            "col1": "Regression",
+            "col2": "QA",
+            "col3": "Running"
+          },
+          {
+            "col1": "Demo",
+            "col2": "PM",
+            "col3": "Ready"
+          }
+        ]
+      }
+    },
+    {
+      "layout_id": "tabular_data_summary",
+      "content": {
+        "title": "TABULAR_4COL_CONTINUATION_DEMO_WITH_A_VERY_LONG_TITLE_TO_VALIDATE_SHRINK_TO_FIT_ON_EVERY_GENERATED_CONTINUATION_PAGE",
+        "table": [
+          {
+            "col1": "Item",
+            "col2": "Category",
+            "col3": "Status",
+            "col4": "Notes"
+          },
+          {
+            "col1": "Row 01",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 02",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 03",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 04",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 05",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 06",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 07",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 08",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 09",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 10",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 11",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 12",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 13",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 14",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 15",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 16",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 17",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 18",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 19",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 20",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 21",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 22",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 23",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 24",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 25",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 26",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 27",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 28",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 29",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 30",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 31",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 32",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 33",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 34",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 35",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 36",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 37",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          },
+          {
+            "col1": "Row 38",
+            "col2": "Program",
+            "col3": "Active",
+            "col4": "Continuation and column-geometry validation entry."
+          }
+        ]
+      }
+    }
+  ]
+}

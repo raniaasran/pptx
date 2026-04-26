@@ -1,0 +1,13 @@
+{
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "two_column_long_text",
+      "content": {
+        "title": "Why This Topic Needs More Context",
+        "left_text": "Our current plan is clear at a high level, but teams still need shared context on assumptions, dependencies, and expected outcomes. This first column explains the background so decisions are easier to understand and align across functions.",
+        "right_text": "With that foundation in place, the second column continues with practical implications: what changes next, where coordination is required, and how success will be measured. This keeps the narrative complete without overloading a single text area."
+      }
+    }
+  ]
+}

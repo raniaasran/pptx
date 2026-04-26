@@ -1,0 +1,24 @@
+{
+  "layout_id": "two_column_long_text",
+  "description": "Use this layout when content needs more text space than a normal bullet slide. It is best for presenting a longer narrative split into two side-by-side text blocks. The left text box can contain the first paragraph or first part of the explanation, and the right text box can continue the same idea or contain a related second paragraph. Suitable for explanations, context sections, detailed notes, or paragraph-based comparisons. Use when the content is mostly narrative text, not bullets, tables, timelines, or cards.",
+  "continuation": false,
+  "required_fields": [
+    "title",
+    "left_text",
+    "right_text"
+  ],
+  "optional_fields": [],
+  "field_types": {
+    "title": "string",
+    "left_text": "string",
+    "right_text": "string"
+  },
+  "constraints": {},
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "two_column_long_text.base"
+}
