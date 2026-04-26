@@ -1,0 +1,24 @@
+{
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "case_timeline",
+      "content": {
+        "title": "Case Timeline Adaptive Pagination",
+        "steps": [
+          { "title": "Kickoff", "description": "Define scope and objectives." },
+          { "title": "Discovery", "description": "Gather baseline requirements." },
+          { "title": "Draft Plan", "description": "Prepare milestones and owners." },
+          { "title": "Review", "description": "Validate assumptions with stakeholders." },
+          { "title": "Pilot", "description": "Run limited-scope implementation." },
+          { "title": "Adjust", "description": "Refine plan using pilot feedback." },
+          { "title": "Build", "description": "Deliver full implementation." },
+          { "title": "QA", "description": "Run validation and defect fixes." },
+          { "title": "Launch Prep", "description": "Finalize rollout checklist." },
+          { "title": "Go Live", "description": "Execute launch and monitor." },
+          { "title": "Handover", "description": "Transfer ownership to operations." }
+        ]
+      }
+    }
+  ]
+}

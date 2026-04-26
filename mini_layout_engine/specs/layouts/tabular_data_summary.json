@@ -1,0 +1,28 @@
+{
+  "layout_id": "tabular_data_summary",
+  "description": "Use this layout to present structured data in a simple table format for comparing items across a small set of attributes. Suitable for short labels, concise values, categories, statuses, or brief phrases.",
+  "continuation": true,
+  "required_fields": [
+    "title",
+    "table"
+  ],
+  "optional_fields": [],
+  "field_types": {
+    "title": "string",
+    "table": "object_list"
+  },
+  "constraints": {
+    "table_columns_range": {
+      "min": 2,
+      "max": 4
+    },
+    "table_rows_dynamic": true
+  },
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "tabular_data_summary.base"
+}

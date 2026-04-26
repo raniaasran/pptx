@@ -1,0 +1,33 @@
+{
+  "layout_id": "case_timeline",
+  "description": "A horizontal timeline layout for concise case/process timelines with a main title and dynamic steps along a central line. Best suited for short step titles and brief supporting descriptions; not intended for dense text or long paragraphs.",
+  "continuation": true,
+  "required_fields": [
+    "title",
+    "steps"
+  ],
+  "optional_fields": [],
+  "field_types": {
+    "title": "string",
+    "steps": "object_list"
+  },
+  "constraints": {
+    "steps_item_schema": {
+      "title": "string",
+      "description": "string",
+      "position": "string_optional",
+      "index": "string_optional"
+    }
+  },
+  "normalization_rules": {
+    "trim_strings": true,
+    "drop_empty_fields": true,
+    "coerce_single_to_list": true,
+    "split_lines_for_lists": true
+  },
+  "hook_key": "case_timeline.base",
+  "source": {
+    "template_slide_index": 30,
+    "template_name": "case timeline"
+  }
+}

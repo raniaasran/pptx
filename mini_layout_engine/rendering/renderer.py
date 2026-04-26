@@ -16,9 +16,11 @@ from mini_layout_engine.rendering.fit_utils import (
     estimate_multiline_wrapped_lines,
     estimate_text_height_in,
     find_shrink_to_fit_font,
+    measure_text_box,
 )
 from mini_layout_engine.rendering.image_fit import prepare_image_for_fit_mode
 from mini_layout_engine.rendering.pptx_helper import MiniPptxHelper
+from pptx.enum.text import MSO_ANCHOR
 from pptx.oxml.xmlchemy import OxmlElement
 from pptx.oxml.ns import qn
 from pptx.util import Pt
@@ -238,8 +240,26 @@ class MiniPptxRenderer:
                     warnings=warnings,
                 )
                 continue
+            if self._supports_adaptive_tabular_data_summary(layout_id, mapped_layout):
+                rendered += self._render_adaptive_tabular_data_summary_slides(
+                    helper,
+                    prototype_index,
+                    content,
+                    mapped_layout=mapped_layout,
+                    warnings=warnings,
+                )
+                continue
             if self._supports_adaptive_section_grid(layout_id, mapped_layout):
                 rendered += self._render_adaptive_section_grid_slides(
+                    helper,
+                    prototype_index,
+                    content,
+                    mapped_layout=mapped_layout,
+                    warnings=warnings,
+                )
+                continue
+            if self._supports_case_timeline(layout_id, mapped_layout):
+                rendered += self._render_case_timeline_slides(
                     helper,
                     prototype_index,
                     content,
@@ -279,6 +299,12 @@ class MiniPptxRenderer:
                     mapped_layout=mapped_layout,
                     placeholder_key="title",
                     is_bold=True,
+                )
+                self._apply_title_bullets_with_image_title_shrink_to_fit(
+                    helper,
+                    target_index,
+                    content=content,
+                    mapped_layout=mapped_layout,
                 )
 
             image_ref = self._extract_image_ref(content)
@@ -511,6 +537,60 @@ class MiniPptxRenderer:
         ):
             self._set_text_shape_font_size(title_shape, float(fit.font_size_pt))
 
+    def _apply_title_bullets_with_image_title_shrink_to_fit(
+        self,
+        helper: MiniPptxHelper,
+        slide_index: int,
+        *,
+        content: Mapping[str, Any],
+        mapped_layout: Mapping[str, Any],
+    ) -> None:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return
+        title_mapping = placeholders.get("title")
+        if not isinstance(title_mapping, Mapping):
+            return
+
+        title_shape_name = str(title_mapping.get("name", "")).strip()
+        if not title_shape_name:
+            return
+        title_shape = helper.get_shape_by_name(slide_index, title_shape_name)
+        if title_shape is None or not getattr(title_shape, "has_text_frame", False):
+            return
+
+        title_text = str(content.get("title", "") or "").strip()
+        if not title_text:
+            return
+
+        text_frame = title_shape.text_frame
+        margin_left = int(getattr(text_frame, "margin_left", 0) or 0)
+        margin_right = int(getattr(text_frame, "margin_right", 0) or 0)
+        margin_top = int(getattr(text_frame, "margin_top", 0) or 0)
+        margin_bottom = int(getattr(text_frame, "margin_bottom", 0) or 0)
+        width_emu = int(title_shape.width) - margin_left - margin_right
+        height_emu = int(title_shape.height) - margin_top - margin_bottom
+        fit_width_in = max(0.1, emu_to_inches(width_emu))
+        fit_height_in = max(0.1, emu_to_inches(height_emu))
+
+        template_font_pt = self._shape_template_font_pt(title_shape, fallback=44.0)
+        min_font_pt = 12.0
+        fit = find_shrink_to_fit_font(
+            title_text,
+            width_in=fit_width_in,
+            height_in=fit_height_in,
+            template_font_pt=float(template_font_pt),
+            min_font_pt=min_font_pt,
+            step_pt=0.5,
+            line_spacing=1.0,
+            vertical_padding_in=0.02,
+        )
+        if fit is None:
+            self._set_text_shape_font_size(title_shape, float(min_font_pt))
+            return
+        if float(fit.font_size_pt) < float(template_font_pt):
+            self._set_text_shape_font_size(title_shape, float(fit.font_size_pt))
+
     def _hero_statement_template_font_pt(self, shape: Any, *, fallback: float) -> float:
         # Prefer explicit run sizing when present.
         explicit = self._shape_template_font_pt(shape, fallback=fallback)
@@ -532,6 +612,161 @@ class MiniPptxRenderer:
             pass
         return float(fallback)
 
+    def _supports_adaptive_tabular_data_summary(
+        self,
+        layout_id: str,
+        mapped_layout: Mapping[str, Any],
+    ) -> bool:
+        if layout_id != "tabular_data_summary":
+            return False
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return False
+        table_mapping = placeholders.get("table")
+        return (
+            isinstance(table_mapping, Mapping)
+            and str(table_mapping.get("type", "")).strip() == "table"
+        )
+
+    def _render_adaptive_tabular_data_summary_slides(
+        self,
+        helper: MiniPptxHelper,
+        prototype_index: int,
+        content: Mapping[str, Any],
+        *,
+        mapped_layout: Mapping[str, Any],
+        warnings: list[str],
+    ) -> int:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return 0
+
+        table_mapping = placeholders.get("table")
+        if not isinstance(table_mapping, Mapping):
+            return 0
+
+        rows = [
+            dict(row)
+            for row in content.get("table", [])
+            if isinstance(row, Mapping)
+        ]
+        active_columns = self._resolve_tabular_active_columns(
+            rows=rows,
+            table_mapping=table_mapping,
+        )
+        if not active_columns:
+            warnings.append(
+                "tabular_data_summary has no usable columns in mapping; rendered static table placeholder."
+            )
+            helper.duplicate_slide(prototype_index)
+            target_index = helper.slide_count() - 1
+            self._render_slide_content(
+                helper,
+                target_index,
+                content,
+                mapped_layout=mapped_layout,
+                layout_id="tabular_data_summary",
+            )
+            return 1
+
+        table_mapping_effective = dict(table_mapping)
+        table_mapping_effective["columns"] = dict(active_columns)
+        table_plan = self._build_table_pagination_plan(
+            helper,
+            prototype_index,
+            table_mapping_effective,
+            rows,
+            warnings=warnings,
+        )
+        pages = table_plan["pages"]
+        if not pages:
+            pages = [{"rows": [], "row_heights_in": []}]
+
+        rendered = 0
+        for page in pages:
+            helper.duplicate_slide(prototype_index)
+            target_index = helper.slide_count() - 1
+            page_content = dict(content)
+            page_content["table"] = page.get("rows", [])
+            self._render_slide_content(
+                helper,
+                target_index,
+                page_content,
+                mapped_layout=mapped_layout,
+                layout_id="tabular_data_summary",
+            )
+            self._apply_table_page_geometry(
+                helper,
+                target_index,
+                table_mapping_effective,
+                page["active_row_heights_in"],
+                float(table_plan["font_size_pt"]),
+                target_table_height_in=float(page.get("target_table_height_in", 0.0)),
+            )
+            rendered += 1
+        return rendered
+
+    def _resolve_tabular_active_columns(
+        self,
+        *,
+        rows: list[dict[str, Any]],
+        table_mapping: Mapping[str, Any],
+    ) -> dict[str, int]:
+        columns_raw = table_mapping.get("columns")
+        if not isinstance(columns_raw, Mapping):
+            return {}
+
+        ordered: list[tuple[str, int]] = []
+        for field_name, column_index in columns_raw.items():
+            try:
+                idx = int(column_index)
+            except Exception:
+                continue
+            if idx < 0:
+                continue
+            ordered.append((str(field_name), idx))
+        if not ordered:
+            return {}
+        ordered.sort(key=lambda item: item[1])
+
+        last_populated_position = -1
+        for position, (field_name, _) in enumerate(ordered):
+            if self._tabular_column_has_content(rows, field_name):
+                last_populated_position = position
+
+        if last_populated_position >= 0:
+            target_count = last_populated_position + 1
+        else:
+            target_count = 0
+
+        minimum_count = 2 if len(ordered) >= 2 else len(ordered)
+        target_count = max(minimum_count, target_count)
+        target_count = min(4, target_count, len(ordered))
+        if target_count <= 0:
+            return {}
+
+        return {field: idx for field, idx in ordered[:target_count]}
+
+    def _tabular_column_has_content(
+        self,
+        rows: list[dict[str, Any]],
+        field_name: str,
+    ) -> bool:
+        for row in rows:
+            if self._tabular_value_has_content(row.get(field_name)):
+                return True
+        return False
+
+    @staticmethod
+    def _tabular_value_has_content(value: Any) -> bool:
+        if value is None:
+            return False
+        if isinstance(value, str):
+            return bool(value.strip())
+        if isinstance(value, (list, tuple)):
+            return any(MiniPptxRenderer._tabular_value_has_content(item) for item in value)
+        return True
+
     def _supports_adaptive_section_grid(
         self,
         layout_id: str,
@@ -546,6 +781,495 @@ class MiniPptxRenderer:
         if not isinstance(sections_mapping, Mapping):
             return False
         return str(sections_mapping.get("type", "")).strip() == "repeated_group"
+
+    def _supports_case_timeline(
+        self,
+        layout_id: str,
+        mapped_layout: Mapping[str, Any],
+    ) -> bool:
+        if layout_id != "case_timeline":
+            return False
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return False
+        steps_mapping = placeholders.get("steps")
+        if not isinstance(steps_mapping, Mapping):
+            return False
+        return str(steps_mapping.get("type", "")).strip() == "timeline_steps_dynamic"
+
+    def _render_case_timeline_slides(
+        self,
+        helper: MiniPptxHelper,
+        prototype_index: int,
+        content: Mapping[str, Any],
+        *,
+        mapped_layout: Mapping[str, Any],
+        warnings: list[str],
+    ) -> int:
+        placeholders = mapped_layout.get("placeholders")
+        if not isinstance(placeholders, Mapping):
+            return 0
+        title_mapping = placeholders.get("title")
+        title_shape_name = ""
+        if isinstance(title_mapping, Mapping):
+            title_shape_name = str(title_mapping.get("name", "")).strip()
+        steps_mapping = placeholders.get("steps")
+        if not isinstance(steps_mapping, Mapping):
+            return 0
+
+        prototypes_raw = steps_mapping.get("item_prototypes")
+        if not isinstance(prototypes_raw, list) or not prototypes_raw:
+            helper.duplicate_slide(prototype_index)
+            target_index = helper.slide_count() - 1
+            self._render_slide_content(
+                helper,
+                target_index,
+                content,
+                mapped_layout=mapped_layout,
+                layout_id="case_timeline",
+            )
+            warnings.append("case_timeline missing item_prototypes; rendered static slide.")
+            return 1
+
+        slots: list[dict[str, str]] = []
+        for entry in prototypes_raw:
+            if not isinstance(entry, Mapping):
+                continue
+            marker = str(entry.get("marker", "")).strip()
+            title = str(entry.get("title", "")).strip()
+            description = str(entry.get("description", "")).strip()
+            if not marker or not title or not description:
+                continue
+            slot_position = str(entry.get("position", "")).strip().lower()
+            if slot_position not in {"top", "bottom"}:
+                slot_position = ""
+            slots.append(
+                {
+                    "marker": marker,
+                    "title": title,
+                    "description": description,
+                    "position": slot_position,
+                }
+            )
+        if not slots:
+            helper.duplicate_slide(prototype_index)
+            target_index = helper.slide_count() - 1
+            self._render_slide_content(
+                helper,
+                target_index,
+                content,
+                mapped_layout=mapped_layout,
+                layout_id="case_timeline",
+            )
+            warnings.append("case_timeline has invalid item_prototypes; rendered static slide.")
+            return 1
+
+        axis_mapping = steps_mapping.get("axis")
+        axis_mapping = axis_mapping if isinstance(axis_mapping, Mapping) else {}
+        position_pattern_raw = axis_mapping.get("position_pattern")
+        position_pattern: list[str] = []
+        if isinstance(position_pattern_raw, list):
+            for value in position_pattern_raw:
+                normalized = str(value or "").strip().lower()
+                if normalized in {"top", "bottom"}:
+                    position_pattern.append(normalized)
+        if not position_pattern:
+            position_pattern = ["top", "bottom"]
+
+        line_segment_names_raw = axis_mapping.get("line_segments")
+        line_segment_names = [
+            str(name).strip()
+            for name in line_segment_names_raw
+            if str(name).strip()
+        ] if isinstance(line_segment_names_raw, list) else []
+
+        steps = self._coerce_timeline_steps(content.get("steps"))
+        chunk_sizes = self._split_timeline_chunk_sizes(
+            total_steps=len(steps),
+            max_per_slide=len(slots),
+        )
+        if not chunk_sizes:
+            chunk_sizes = [0]
+
+        rendered = 0
+        cursor = 0
+        title_text = str(content.get("title", "") or "")
+        for page_index, chunk_size in enumerate(chunk_sizes):
+            page_steps_raw = steps[cursor: cursor + chunk_size]
+            page_steps: list[dict[str, Any]] = []
+            for local_index, step in enumerate(page_steps_raw):
+                global_index = cursor + local_index + 1
+                step_index = str(step.get("index", "") or "").strip()
+                resolved = dict(step)
+                resolved["index"] = step_index or f"{global_index:02d}"
+                page_steps.append(resolved)
+
+            helper.duplicate_slide(prototype_index)
+            target_index = helper.slide_count() - 1
+            if title_shape_name:
+                title_shape = helper.get_shape_by_name(target_index, title_shape_name)
+                if title_shape is not None:
+                    helper.replace_text_preserve_format(title_shape, title_text)
+
+            assignments = self._assign_timeline_steps_to_slots(
+                steps=page_steps,
+                slots=slots,
+                position_pattern=position_pattern,
+            )
+            self._render_case_timeline_page(
+                helper,
+                slide_index=target_index,
+                slots=slots,
+                assignments=assignments,
+                line_segment_names=line_segment_names,
+                has_next=page_index < len(chunk_sizes) - 1,
+                continuation_page=page_index > 0,
+            )
+            rendered += 1
+            cursor += chunk_size
+        return rendered
+
+    @staticmethod
+    def _coerce_timeline_steps(value: Any) -> list[dict[str, Any]]:
+        if not isinstance(value, list):
+            return []
+        items: list[dict[str, Any]] = []
+        for entry in value:
+            if not isinstance(entry, Mapping):
+                continue
+            position = str(entry.get("position", "") or "").strip().lower()
+            if position not in {"top", "bottom"}:
+                position = ""
+            items.append(
+                {
+                    "index": str(entry.get("index", "") or "").strip(),
+                    "title": str(entry.get("title", "") or "").strip(),
+                    "description": str(entry.get("description", "") or "").strip(),
+                    "position": position,
+                }
+            )
+        return items
+
+    @staticmethod
+    def _split_timeline_chunk_sizes(*, total_steps: int, max_per_slide: int) -> list[int]:
+        total = max(0, int(total_steps))
+        max_items = max(1, int(max_per_slide))
+        if total == 0:
+            return [0]
+
+        chunks: list[int] = []
+        remaining = total
+        while remaining > 0:
+            if remaining <= max_items:
+                chunks.append(remaining)
+                break
+            take = max_items
+            if remaining - take == 1:
+                take = max(1, max_items - 1)
+            chunks.append(take)
+            remaining -= take
+        return chunks
+
+    def _assign_timeline_steps_to_slots(
+        self,
+        *,
+        steps: list[dict[str, Any]],
+        slots: list[dict[str, str]],
+        position_pattern: list[str],
+    ) -> list[dict[str, Any]]:
+        assignments: list[dict[str, Any]] = []
+        next_slot = 0
+        for local_index, step in enumerate(steps):
+            default_position = position_pattern[local_index % len(position_pattern)]
+            desired = str(step.get("position", "") or "").strip().lower() or default_position
+            if desired not in {"top", "bottom"}:
+                desired = default_position
+
+            slot_index = self._pick_timeline_slot_index(
+                slots=slots,
+                start_index=next_slot,
+                desired_position=desired,
+            )
+            if slot_index is None:
+                break
+            assignments.append({"slot_index": slot_index, "step": step})
+            next_slot = slot_index + 1
+        return assignments
+
+    @staticmethod
+    def _pick_timeline_slot_index(
+        *,
+        slots: list[dict[str, str]],
+        start_index: int,
+        desired_position: str,
+    ) -> int | None:
+        for idx in range(start_index, len(slots)):
+            slot_position = str(slots[idx].get("position", "")).strip().lower()
+            if slot_position == desired_position:
+                return idx
+        for idx in range(start_index, len(slots)):
+            return idx
+        return None
+
+    def _render_case_timeline_page(
+        self,
+        helper: MiniPptxHelper,
+        *,
+        slide_index: int,
+        slots: list[dict[str, str]],
+        assignments: list[dict[str, Any]],
+        line_segment_names: list[str],
+        has_next: bool,
+        continuation_page: bool,
+    ) -> None:
+        assignment_by_slot = {
+            int(entry.get("slot_index")): entry.get("step", {})
+            for entry in assignments
+            if isinstance(entry, Mapping) and entry.get("slot_index") is not None
+        }
+        visible_slots = sorted(idx for idx in assignment_by_slot.keys() if 0 <= int(idx) < len(slots))
+        visible_step_count = len(visible_slots)
+
+        for slot_index, slot in enumerate(slots):
+            step = assignment_by_slot.get(slot_index)
+            marker_shape = helper.get_shape_by_name(slide_index, str(slot.get("marker", "")))
+            title_shape = helper.get_shape_by_name(slide_index, str(slot.get("title", "")))
+            desc_shape = helper.get_shape_by_name(slide_index, str(slot.get("description", "")))
+            slot_position = str(slot.get("position", "")).strip().lower()
+            if not isinstance(step, Mapping):
+                for shape in (marker_shape, title_shape, desc_shape):
+                    if shape is not None:
+                        helper.remove_shape(shape)
+                continue
+
+            if marker_shape is not None:
+                helper.replace_text_preserve_format(marker_shape, str(step.get("index", "") or ""))
+            if title_shape is not None:
+                helper.replace_text_preserve_format(title_shape, str(step.get("title", "") or ""))
+                self._apply_case_timeline_bottom_title_anchor(
+                    title_shape=title_shape,
+                    slot_position=slot_position,
+                )
+                self._apply_case_timeline_text_fit(
+                    text_shape=title_shape,
+                    min_font_pt=8.0,
+                    hard_min_font_pt=5.5,
+                    fallback_template_pt=24.0,
+                )
+            if desc_shape is not None:
+                helper.replace_text_preserve_format(desc_shape, str(step.get("description", "") or ""))
+                self._apply_case_timeline_text_fit(
+                    text_shape=desc_shape,
+                    min_font_pt=7.0,
+                    hard_min_font_pt=5.5,
+                    fallback_template_pt=14.0,
+                )
+
+        self._apply_case_timeline_line_segments(
+            helper,
+            slide_index=slide_index,
+            line_segment_names=line_segment_names,
+            visible_step_count=visible_step_count,
+            has_next=has_next,
+            continuation_page=continuation_page,
+        )
+        self._ensure_case_timeline_markers_above_line(
+            helper,
+            slide_index=slide_index,
+            slots=slots,
+            visible_slots=visible_slots,
+        )
+
+    def _ensure_case_timeline_markers_above_line(
+        self,
+        helper: MiniPptxHelper,
+        *,
+        slide_index: int,
+        slots: list[dict[str, str]],
+        visible_slots: list[int],
+    ) -> None:
+        if not visible_slots:
+            return
+        slide = helper.get_slide(slide_index)
+        sp_tree = slide.shapes._spTree
+        for slot_index in visible_slots:
+            if not (0 <= int(slot_index) < len(slots)):
+                continue
+            marker_name = str(slots[int(slot_index)].get("marker", "")).strip()
+            if not marker_name:
+                continue
+            marker_shape = helper.get_shape_by_name(slide_index, marker_name)
+            if marker_shape is None:
+                continue
+            element = marker_shape._element
+            parent = element.getparent()
+            if parent is None:
+                continue
+            parent.remove(element)
+            sp_tree.insert_element_before(element, "p:extLst")
+
+    def _apply_case_timeline_bottom_title_anchor(
+        self,
+        *,
+        title_shape: Any,
+        slot_position: str,
+    ) -> None:
+        if str(slot_position).strip().lower() != "bottom":
+            return
+        if not getattr(title_shape, "has_text_frame", False):
+            return
+        text_frame = title_shape.text_frame
+        text_frame.word_wrap = True
+        text_frame.vertical_anchor = MSO_ANCHOR.TOP
+
+    def _apply_case_timeline_text_fit(
+        self,
+        *,
+        text_shape: Any,
+        min_font_pt: float,
+        hard_min_font_pt: float,
+        fallback_template_pt: float,
+    ) -> None:
+        if not getattr(text_shape, "has_text_frame", False):
+            return
+        text_frame = text_shape.text_frame
+        raw_text = str(getattr(text_frame, "text", "") or "").strip()
+        if not raw_text:
+            return
+        text_frame.word_wrap = True
+
+        margin_left = int(getattr(text_frame, "margin_left", 0) or 0)
+        margin_right = int(getattr(text_frame, "margin_right", 0) or 0)
+        margin_top = int(getattr(text_frame, "margin_top", 0) or 0)
+        margin_bottom = int(getattr(text_frame, "margin_bottom", 0) or 0)
+        width_emu = int(getattr(text_shape, "width", 0)) - margin_left - margin_right
+        height_emu = int(getattr(text_shape, "height", 0)) - margin_top - margin_bottom
+        fit_width_in = max(0.1, emu_to_inches(width_emu))
+        fit_height_in = max(0.1, emu_to_inches(height_emu))
+
+        template_font_pt = self._shape_template_font_pt(
+            text_shape,
+            fallback=float(fallback_template_pt),
+        )
+        fit = find_shrink_to_fit_font(
+            raw_text,
+            width_in=fit_width_in,
+            height_in=fit_height_in,
+            template_font_pt=float(template_font_pt),
+            min_font_pt=float(min_font_pt),
+            step_pt=0.5,
+            line_spacing=1.0,
+            vertical_padding_in=0.02,
+        )
+        if fit is not None:
+            chosen_pt = self._refine_case_timeline_font_size_for_safety(
+                text=raw_text,
+                width_in=fit_width_in,
+                height_in=fit_height_in,
+                start_font_pt=float(fit.font_size_pt),
+                hard_min_font_pt=float(hard_min_font_pt),
+            )
+            if float(chosen_pt) <= float(template_font_pt):
+                self._set_text_shape_font_size(text_shape, float(chosen_pt))
+            return
+
+        # Extreme-content fallback: prioritize in-shape validity over readability.
+        fallback_fit = find_shrink_to_fit_font(
+            raw_text,
+            width_in=fit_width_in,
+            height_in=fit_height_in,
+            template_font_pt=float(min_font_pt),
+            min_font_pt=float(hard_min_font_pt),
+            step_pt=0.5,
+            line_spacing=1.0,
+            vertical_padding_in=0.02,
+        )
+        if fallback_fit is not None:
+            chosen_pt = self._refine_case_timeline_font_size_for_safety(
+                text=raw_text,
+                width_in=fit_width_in,
+                height_in=fit_height_in,
+                start_font_pt=float(fallback_fit.font_size_pt),
+                hard_min_font_pt=float(hard_min_font_pt),
+            )
+            self._set_text_shape_font_size(text_shape, float(chosen_pt))
+            return
+
+        self._set_text_shape_font_size(text_shape, float(hard_min_font_pt))
+
+    def _refine_case_timeline_font_size_for_safety(
+        self,
+        *,
+        text: str,
+        width_in: float,
+        height_in: float,
+        start_font_pt: float,
+        hard_min_font_pt: float,
+    ) -> float:
+        candidate = max(float(hard_min_font_pt), float(start_font_pt))
+        while candidate >= float(hard_min_font_pt) - 1e-6:
+            metrics = measure_text_box(
+                text,
+                width_in=width_in,
+                height_in=height_in,
+                font_size_pt=candidate,
+                line_spacing=1.0,
+                vertical_padding_in=0.03,
+                average_char_width_factor=0.58,
+            )
+            if bool(metrics.fits):
+                return float(candidate)
+            candidate -= 0.5
+        return float(hard_min_font_pt)
+
+    def _apply_case_timeline_line_segments(
+        self,
+        helper: MiniPptxHelper,
+        *,
+        slide_index: int,
+        line_segment_names: list[str],
+        visible_step_count: int,
+        has_next: bool,
+        continuation_page: bool,
+    ) -> None:
+        if not line_segment_names:
+            return
+        segment_shapes = []
+        for name in line_segment_names:
+            shape = helper.get_shape_by_name(slide_index, str(name))
+            if shape is not None:
+                segment_shapes.append(shape)
+        if not segment_shapes:
+            return
+
+        count = max(0, int(visible_step_count))
+        if count <= 0:
+            for shape in segment_shapes:
+                helper.remove_shape(shape)
+            return
+
+        if continuation_page and segment_shapes:
+            first_segment = segment_shapes[0]
+            original_left = int(getattr(first_segment, "left", 0))
+            if original_left > 0:
+                first_segment.width = int(getattr(first_segment, "width", 0)) + original_left
+                first_segment.left = 0
+
+        if has_next:
+            extension_idx = min(len(segment_shapes) - 1, max(0, count - 1))
+            for idx, shape in enumerate(segment_shapes):
+                if idx > extension_idx:
+                    helper.remove_shape(shape)
+                    continue
+                if idx == extension_idx:
+                    slide_right = int(helper.prs.slide_width)
+                    shape.width = max(0, slide_right - int(shape.left))
+            return
+
+        keep_count = min(len(segment_shapes), max(0, count - 1))
+        for idx, shape in enumerate(segment_shapes):
+            if idx >= keep_count:
+                helper.remove_shape(shape)
 
     def _render_adaptive_section_grid_slides(
         self,
@@ -1409,6 +2133,8 @@ class MiniPptxRenderer:
             font_pt = fonts.get(field_name)
             if font_pt is not None:
                 self._set_text_shape_font_size(shape, float(font_pt))
+            if field_name == "label":
+                self._fit_section_grid_label_single_line(shape, text)
 
     def _clamp_section_title_desc_gap(
         self,
@@ -1430,6 +2156,47 @@ class MiniPptxRenderer:
             dh = max(0.05, float(dh) - delta)
         adjusted["description"] = (float(dx), float(dy), float(dw), float(dh))
         return adjusted
+
+    def _fit_section_grid_label_single_line(
+        self,
+        shape: Any,
+        text: str,
+        *,
+        min_font_pt: float = 8.0,
+    ) -> None:
+        """Keep section-grid labels on a single line inside their fixed box."""
+        if not getattr(shape, "has_text_frame", False):
+            return
+
+        label_text = " ".join(str(text or "").split()).strip()
+        if not label_text:
+            return
+
+        text_frame = shape.text_frame
+        text_frame.word_wrap = False
+
+        width_in = emu_to_inches(getattr(shape, "width", 0))
+        if width_in <= 0:
+            return
+
+        baseline_pt = self._shape_template_font_pt(shape, fallback=18.0)
+        start_pt = max(float(min_font_pt), float(baseline_pt))
+        required_chars = max(1, len(label_text) + 1)
+
+        chosen_pt = float(min_font_pt)
+        candidate = start_pt
+        while candidate >= float(min_font_pt) - 1e-6:
+            capacity = estimate_chars_per_line(
+                width_in,
+                candidate,
+                average_char_width_factor=0.62,
+            )
+            if capacity >= required_chars:
+                chosen_pt = float(candidate)
+                break
+            candidate -= 0.5
+
+        self._set_text_shape_font_size(shape, chosen_pt)
 
     def _render_paginated_table_slides(
         self,

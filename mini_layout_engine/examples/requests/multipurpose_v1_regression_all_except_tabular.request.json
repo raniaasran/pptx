@@ -1,0 +1,87 @@
+{
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "cover_title",
+      "content": {
+        "title": "Q2 Operations Snapshot",
+        "subtitle": "Cross-team progress and next actions"
+      }
+    },
+    {
+      "layout_id": "hero_statement",
+      "content": {
+        "title": "Execution improved, but handoff speed is our next bottleneck.",
+        "description": "Throughput is trending up; we now need tighter coordination between planning, release, and support."
+      }
+    },
+    {
+      "layout_id": "info_table",
+      "content": {
+        "title": "Priority Workstreams",
+        "subtitle": "Current status and near-term focus",
+        "rows": [
+          { "label": "Platform Stability", "description": "Improve reliability by addressing top recurring incidents." },
+          { "label": "Release Process", "description": "Reduce cycle delays with tighter QA and pre-release checklists." },
+          { "label": "Customer Onboarding", "description": "Simplify setup flow and improve activation guidance." },
+          { "label": "Analytics Cleanup", "description": "Standardize event tracking and align dashboard definitions." },
+          { "label": "Security Review", "description": "Close high-priority findings and verify remediation coverage." },
+          { "label": "Support Enablement", "description": "Refresh playbooks for common escalations and handoffs." }
+        ],
+        "footer_notes": [
+          "Status refreshed this week",
+          "Owners confirmed for all items"
+        ]
+      }
+    },
+    {
+      "layout_id": "title_bullets_with_image",
+      "content": {
+        "title": "Release Readiness Highlights",
+        "intro_text": "The latest checkpoint shows strong alignment across product, engineering, and operations.",
+        "bullet_items": [
+          "Critical defects reduced to low single digits",
+          "Rollback runbook validated in staging",
+          "Launch communications draft approved"
+        ],
+        "closing_text": "Final sign-off is pending one compliance review.",
+        "image": "wide__contain_2092x905.png"
+      }
+    },
+    {
+      "layout_id": "section_grid",
+      "content": {
+        "title": "Operational Focus Areas",
+        "sections": [
+          { "label": "A1", "title": "Reliability", "description": "Stabilize top failing integrations and monitor error budgets." },
+          { "label": "B2", "title": "Speed", "description": "Shorten review loops and reduce queue time for releases." },
+          { "label": "C3", "title": "Visibility", "description": "Improve KPI coverage for adoption, quality, and response." },
+          { "label": "D4", "title": "Enablement", "description": "Equip teams with clearer docs and faster escalation paths." }
+        ]
+      }
+    },
+    {
+      "layout_id": "large_media_title_caption",
+      "content": {
+        "title": "System Topology Overview",
+        "media": "earth.png",
+        "caption": "Current architecture view used for release planning and dependency tracking."
+      }
+    },
+    {
+      "layout_id": "case_timeline",
+      "content": {
+        "title": "Program Timeline",
+        "steps": [
+          { "title": "Scope", "description": "Define outcomes and ownership." },
+          { "title": "Plan", "description": "Break work into deliverable milestones." },
+          { "title": "Build", "description": "Implement core changes and integrations." },
+          { "title": "Validate", "description": "Run QA, reliability, and security checks." },
+          { "title": "Prepare", "description": "Finalize launch checklist and comms." },
+          { "title": "Launch", "description": "Deploy and monitor live performance." },
+          { "title": "Review", "description": "Capture learnings and next improvements." }
+        ]
+      }
+    }
+  ]
+}

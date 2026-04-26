@@ -1,0 +1,37 @@
+{
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "tabular_data_summary",
+      "content": {
+        "title": "Tabular Data Summary",
+        "table": [
+          {
+            "col1": "Item",
+            "col2": "Category",
+            "col3": "Status",
+            "col4": "Value"
+          },
+          {
+            "col1": "A-101",
+            "col2": "Hardware",
+            "col3": "Active",
+            "col4": "42"
+          },
+          {
+            "col1": "B-204",
+            "col2": "Software",
+            "col3": "Pending",
+            "col4": "17"
+          },
+          {
+            "col1": "C-309",
+            "col2": "Services",
+            "col3": "Blocked",
+            "col4": "9"
+          }
+        ]
+      }
+    }
+  ]
+}

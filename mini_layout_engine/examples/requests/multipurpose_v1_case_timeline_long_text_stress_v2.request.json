@@ -1,0 +1,61 @@
+{
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "case_timeline",
+      "content": {
+        "title": "Case Timeline Long-Text Robust Fitting Stress Test",
+        "steps": [
+          {
+            "title": "Strategic Discovery and Cross-Functional Problem Framing",
+            "description": "Run a full discovery pass with product, engineering, operations, and legal stakeholders to capture constraints, risks, and measurable success criteria before implementation starts."
+          },
+          {
+            "title": "Launch\nPrep",
+            "description": "Prepare launch logistics, handoff notes, and support playbooks with enough detail to validate coverage across marketing, sales, customer success, and first-line support channels."
+          },
+          {
+            "title": "Technical Validation Across Integration Boundaries",
+            "description": "Validate dependencies, fallback behavior, and observability coverage so failure modes are detectable and recoverable before release pressure increases."
+          },
+          {
+            "title": "Market\nReadiness",
+            "description": "Finalize messaging, campaign timing, and enablement assets while confirming release notes and rollout communications are aligned for internal and external audiences."
+          },
+          {
+            "title": "Governance Alignment and Executive Readiness Review",
+            "description": "Review scope, risks, mitigations, and launch gates with leadership to secure sign-off and clarify operational ownership for go-live decisions."
+          },
+          {
+            "title": "Release Coordination and Multi-Track Validation Hardening",
+            "description": "Coordinate sequencing across teams and complete hardening checks for performance, access controls, data integrity, and incident response procedures."
+          },
+          {
+            "title": "Go\nLive",
+            "description": "Execute the go-live runbook with real-time checkpoints, escalation routing, and clear ownership for operational decisions during launch windows."
+          },
+          {
+            "title": "Post-Launch Quality and Feedback Consolidation Workflow",
+            "description": "Aggregate feedback from customers and support teams, triage urgent issues, and prioritize stabilization actions for the first release cycles."
+          },
+          {
+            "title": "Long-Horizon Optimization and Process Refinement",
+            "description": "Capture lessons learned and process improvements to strengthen repeatability, reduce delivery variance, and improve launch quality over time."
+          },
+          {
+            "title": "Adoption Monitoring and Iteration Planning Cadence",
+            "description": "Track adoption metrics, identify friction points, and convert validated insights into prioritized iteration plans for the next operating cycle."
+          },
+          {
+            "title": "Risk Review and Mitigation Prioritization",
+            "description": "Review operational and customer-impact risks after release, then adjust safeguards and communication plans to reduce recurrence and improve resilience."
+          },
+          {
+            "title": "Client\nHandover",
+            "description": "Complete final handover with documentation, KPI baselines, and ownership transfer details so the receiving team can operate independently without dependency on the rollout team."
+          }
+        ]
+      }
+    }
+  ]
+}

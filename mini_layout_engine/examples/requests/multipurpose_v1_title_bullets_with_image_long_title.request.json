@@ -1,0 +1,19 @@
+{
+  "design_family_id": "multipurpose_v1",
+  "slides": [
+    {
+      "layout_id": "title_bullets_with_image",
+      "content": {
+        "title": "Release Readiness and Cross-Functional Launch Planning Alignment for Product, Engineering, Operations, and Customer Success",
+        "intro_text": "The latest checkpoint confirms alignment on launch scope and responsibilities.",
+        "bullet_items": [
+          "Critical issues are now below the release threshold",
+          "Rollback and monitoring plans were validated in staging",
+          "Customer communication draft is reviewed and approved"
+        ],
+        "closing_text": "Final sign-off depends on a short compliance review.",
+        "image": "wide__contain_2092x905.png"
+      }
+    }
+  ]
+}
